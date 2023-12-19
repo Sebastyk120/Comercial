@@ -1,7 +1,9 @@
 import math
 from django.core.validators import MinValueValidator
 from django.db import models
-
+from django.db.models import Sum
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
 from .choices import motivo_nota
 from datetime import datetime, timedelta
 
@@ -225,7 +227,7 @@ class DetallePedido(models.Model):
                                                 editable=False)
     tarifa_comision = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
                                           verbose_name="Tarifa Comisión", null=True,
-                                          blank=True)
+                                          blank=True, default=0)
     valor_x_caja_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
                                            verbose_name="Valor X Caja USD", null=True,
                                            blank=True, default=0)
@@ -285,3 +287,36 @@ class DetallePedido(models.Model):
 
     def __str__(self):
         return f"Detalle Pedido - {self.pedido} - {self.fruta} - {self.presentacion}"
+
+
+@receiver(post_save, sender=DetallePedido)
+def actualizar_inventario_al_guardar(sender, instance, **kwargs):
+    from importlib import import_module
+    Inventario = import_module('inventarios.models').Inventario
+    nuevo_inventario, created = Inventario.objects.get_or_create(
+        numero_item=instance.referencia,
+        defaults={'ventas': 0, 'ventas_contenedor': 0}
+    )
+    nuevo_inventario.ventas = DetallePedido.objects.filter(
+        referencia=instance.referencia
+    ).aggregate(Sum('cajas_enviadas'))['cajas_enviadas__sum'] or 0
+    nuevo_inventario.venta_contenedor = DetallePedido.objects.filter(
+        referencia=instance.referencia
+    ).aggregate(Sum('cantidad_contenedores'))['cantidad_contenedores__sum'] or 0
+    nuevo_inventario.save()
+
+
+@receiver(post_delete, sender=DetallePedido)
+def actualizar_inventario_al_eliminar(sender, instance, **kwargs):
+    from importlib import import_module
+    Inventario = import_module('inventarios.models').Inventario
+    nuevo_inventario = Inventario.objects.get(
+        numero_item=instance.referencia,
+    )
+    nuevo_inventario.ventas = DetallePedido.objects.filter(
+        referencia=instance.referencia
+    ).aggregate(Sum('cajas_enviadas'))['cajas_enviadas__sum'] or 0
+    nuevo_inventario.venta_contenedor = DetallePedido.objects.filter(
+        referencia=instance.referencia
+    ).aggregate(Sum('cantidad_contenedores'))['cantidad_contenedores__sum'] or 0
+    nuevo_inventario.save()

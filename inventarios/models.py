@@ -72,6 +72,7 @@ class Inventario(models.Model):
     traslado_propio = models.IntegerField(default=0, verbose_name="Traslado Propio", blank=True, null=True)
     traslado_remisionado = models.IntegerField(default=0, verbose_name="Traslado Remisionado", blank=True, null=True)
     ventas = models.IntegerField(default=0, verbose_name="Ventas", blank=True, null=True)
+    venta_contenedor = models.IntegerField(default=0, verbose_name="Venta Contenedor", blank=True, null=True)
 
     class Meta:
         ordering = ['numero_item']

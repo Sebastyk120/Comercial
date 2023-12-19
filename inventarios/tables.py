@@ -41,4 +41,4 @@ class InventarioTable(tables.Table):
         model = Inventario
         template_name = 'django_tables2/bootstrap5-responsive.html'
         fields = ("numero_item", "compras_efectivas", "saldos_iniciales", "salidas",
-                  "traslado_propio", "traslado_remisionado", "ventas")
+                  "traslado_propio", "traslado_remisionado", "ventas", "venta_contenedor")
