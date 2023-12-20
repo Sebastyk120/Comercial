@@ -18,7 +18,7 @@ from .tables import MovimientoTable, ItemTable, InventarioTable
 # -------------------------------------- Vistas Para Etnico: ---------------------------------------------------------
 
 
-# Mostrar Tabla Recibo - Bodega Recibo Etnico (Crear Item)
+# ------------------- Lista de Items Etnico  --------------------------------------------------------------------------
 class ItemListView(SingleTableView):
     model = Item
     table_class = ItemTable

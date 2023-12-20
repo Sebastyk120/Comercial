@@ -21,7 +21,7 @@ from autenticacion import views as principal
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('autenticacion/', include('autenticacion.urls')),
-    # path('comercial/', include('comercial.urls')),
+    path('comercial/', include('comercial.urls')),
     path('inventarios/', include('inventarios.urls')),
     path('', principal.home, name='home_principal')
 ]

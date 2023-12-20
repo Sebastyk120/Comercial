@@ -161,7 +161,7 @@ class Pedido(models.Model):
         ordering = ['id']
 
     def __str__(self):
-        return f'Numero De Pedido: {self.id} - Cliente: {self.cliente.nombre}'
+        return f'Pedido: {self.id} - Cliente: {self.cliente.nombre}'
 
 
 class Presentacion(models.Model):

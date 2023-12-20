@@ -59,28 +59,28 @@ input[name="item_busqueda"]:focus {
     font-size: 0.9em;
     min-width: 400px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    background-color: #ece9e9;
+    background-color: rgb(255, 255, 255);
     font-family: 'Montserrat', sans-serif;
     font-weight: bold;
     text-align: center;
 }
 
 .table thead tr {
-    background-color: #4CB9E7;
+    background-color: #006098;
     color: #ffffff;
     text-align: center;
 
 }
 
 .table thead tr {
-    background-color: #4CB9E7;
+    background-color: #006098;
     color: #ffffff;
     text-align: center;
 
 }
 
 .table thead tr {
-    background-color: #4CB9E7;
+    background-color: #006098;
     color: #ffffff;
     text-align: center;
 
@@ -92,7 +92,7 @@ input[name="item_busqueda"]:focus {
 }
 
 a:link {
-    color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
     text-decoration: none
 }
 
@@ -102,9 +102,10 @@ a:hover {
 }
 
 a:visited {
-    color: rgb(0, 0, 0);
+    color: rgb(243, 243, 243);
     text-decoration: none
 }
+
 
 .page-link {
 

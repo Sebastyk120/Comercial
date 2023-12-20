@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'import_export',
     'rest_framework',
     'django_extensions',
+    'simple_history',
 ]
 
 MIDDLEWARE = [
@@ -66,7 +67,7 @@ TEMPLATES = [
             BASE_DIR / 'autenticacion/templates',
             BASE_DIR / 'cartera/templates',
             BASE_DIR / 'inventarios/templates',
-            BASE_DIR / 'comercial/templates'
+            BASE_DIR / 'comercial/templates',
         ]
         ,
         'APP_DIRS': True,

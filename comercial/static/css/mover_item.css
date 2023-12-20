@@ -203,7 +203,7 @@ A:hover {
 }
 
 A:visited {
-    color: #006098;
+    color: rgb(243, 243, 243);
     text-decoration: none
 }
 

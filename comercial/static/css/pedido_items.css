@@ -29,7 +29,22 @@ h1 {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     background-color: #ece9e9; /* Puedes ajustar el color de fondo según tus preferencias */
     font-weight: bold;
+    white-space: nowrap;  /* Evita el salto de línea en las celdas */
+    text-align: center;    /* Alinea el texto a la derecha */
+}
+
+.table thead tr {
+    background-color: #006098;
+    color: #ffffff;
     text-align: center;
+
+}
+
+.table thead tr {
+    background-color: #006098;
+    color: #ffffff;
+    text-align: center;
+
 }
 
 .table thead tr {
@@ -41,7 +56,7 @@ h1 {
 
 .table tbody tr.active-row {
     font-weight: bold;
-    color: #006098;
+    color: #000000;
 }
 
 a:link {
@@ -146,8 +161,14 @@ label {
 .page-link {
 
     z-index: 3;
-    color: #006098(--bs-pagination-active-border-color);
-    background-color: #006098;
-    border-color: #006098(--bs-pagination-active-border-color);
+    color: #000000(--bs-pagination-active-border-color);
+    background-color: #000000;
+    border-color: #000000(--bs-pagination-active-border-color);
 
+}
+
+.django-tables2 .table td {
+    white-space: nowrap;  /* Evita el salto de línea en las celdas */
+    text-align: right;    /* Alinea el texto a la derecha */
+    padding-right: 10px;  /* Añade algo de relleno a la derecha */
 }
