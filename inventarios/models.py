@@ -1,12 +1,12 @@
 import logging
-from django.contrib import messages
+
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-from django.http import request
+
 from comercial.models import Referencias, Exportador
 
 
@@ -84,87 +84,68 @@ class Inventario(models.Model):
 # Señal para actualizar automáticamente el modelo Inventario después de guardar o borrar un objeto Item
 @receiver(post_save, sender=Item)
 def actualizar_inventario_al_guardar(sender, instance, **kwargs):
-    item = instance.numero_item
-    bodega = instance.bodega
-    nuevo_inventario, created = Inventario.objects.get_or_create(
-        numero_item=instance.numero_item,
-        defaults={'compras_efectivas': 0, 'saldos_iniciales': 0, 'salidas': 0, 'traslado_propio': 0,
-                  'traslado_remisionado': 0, 'ventas': 0}
-    )
-    if bodega.nombre == 'Compras Efectivas':
-        nuevo_inventario.compras_efectivas = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Saldos Iniciales':
-        nuevo_inventario.saldos_iniciales = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Salidas':
-        nuevo_inventario.salidas = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Traslado Propio':
-        nuevo_inventario.traslado_propio = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Traslado Remisionado':
-        nuevo_inventario.traslado_remisionado = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Ventas':
-        nuevo_inventario.ventas = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    else:
-        # Manejo de error y envío de alerta
-        logging.error(f"Condición no manejada para la bodega: {item.bodega.nombre}")
-        messages.error(request, f"Condición no manejada para la bodega: {item.bodega.nombre}")
+    try:
+        with transaction.atomic():
+            nuevo_inventario, created = Inventario.objects.get_or_create(
+                numero_item=instance.numero_item,
+                defaults={'compras_efectivas': 0, 'saldos_iniciales': 0, 'salidas': 0,
+                          'traslado_propio': 0, 'traslado_remisionado': 0, 'ventas': 0}
+            )
+
+            campos_bodega = {
+                'Compras Efectivas': 'compras_efectivas',
+                'Saldos Iniciales': 'saldos_iniciales',
+                'Salidas': 'salidas',
+                'Traslado Propio': 'traslado_propio',
+                'Traslado Remisionado': 'traslado_remisionado',
+                'Ventas': 'ventas',
+            }
+
+            campo_a_actualizar = campos_bodega.get(instance.bodega.nombre)
+
+            if campo_a_actualizar:
+                cantidad_agregada = Item.objects.filter(
+                    numero_item=instance.numero_item, bodega=instance.bodega
+                ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
+
+                setattr(nuevo_inventario, campo_a_actualizar, cantidad_agregada)
+                nuevo_inventario.save()
+            else:
+                # Manejo de error y envío de alerta
+                logging.error(f"Condición no manejada para la bodega: {instance.bodega.nombre}")
+                # messages.error(request, f"Condición no manejada para la bodega: {instance.bodega.nombre}")
+                # Nota: 'request' no está disponible aquí, considera otra forma de informar al usuario
+    except Exception as e:
+        logging.error(f"Error al actualizar el inventario: {e}")
+        # Nota: Considera cómo informar al usuario sobre este error
 
 
 @receiver(post_delete, sender=Item)
 def actualizar_inventario_al_eliminar(sender, instance, **kwargs):
-    item = instance.numero_item
-    bodega = instance.bodega
-    nuevo_inventario = Inventario.objects.get(
-        numero_item=instance.numero_item,
-    )
-    if bodega.nombre == 'Compras Efectivas':
-        nuevo_inventario.compras_efectivas = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Saldos Iniciales':
-        nuevo_inventario.saldos_iniciales = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Salidas':
-        nuevo_inventario.salidas = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Traslado Propio':
-        nuevo_inventario.traslado_propio = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Traslado Remisionado':
-        nuevo_inventario.traslado_remisionado = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    elif bodega.nombre == 'Ventas':
-        nuevo_inventario.ventas = Item.objects.filter(
-            numero_item=instance.numero_item, bodega=instance.bodega
-        ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
-        nuevo_inventario.save()
-    else:
-        # Manejo de error y envío de alerta
-        logging.error(f"Condición no manejada para la bodega: {item.bodega.nombre}")
-        messages.error(request, f"Condición no manejada para la bodega: {item.bodega.nombre}")
+    try:
+        with transaction.atomic():
+            nuevo_inventario = Inventario.objects.get(numero_item=instance.numero_item)
+
+            campos_bodega = {
+                'Compras Efectivas': 'compras_efectivas',
+                'Saldos Iniciales': 'saldos_iniciales',
+                'Salidas': 'salidas',
+                'Traslado Propio': 'traslado_propio',
+                'Traslado Remisionado': 'traslado_remisionado',
+                'Ventas': 'ventas',
+            }
+
+            campo_a_actualizar = campos_bodega.get(instance.bodega.nombre)
+
+            if campo_a_actualizar:
+                cantidad_agregada = Item.objects.filter(
+                    numero_item=instance.numero_item, bodega=instance.bodega
+                ).aggregate(Sum('cantidad_cajas'))['cantidad_cajas__sum'] or 0
+
+                setattr(nuevo_inventario, campo_a_actualizar, cantidad_agregada)
+                nuevo_inventario.save()
+            else:
+                # Manejo de error y envío de alerta
+                logging.error(f"Condición no manejada para la bodega: {instance.bodega.nombre}")
+    except Exception as e:
+        logging.error(f"Error al actualizar el inventario después de eliminar: {e}")

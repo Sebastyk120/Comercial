@@ -2,32 +2,30 @@ $(document).ready(function () {
 
     var itemId = null;
 
-    $('.mover-button').click(function () {
-        itemId = $(this).data('item-id');
+    $('.eliminar-button').click(function () {
+        itemId = $(this).data('pedido-id');
         $.ajax({
-            url: '/inventarios/recibo_items_update',
+            url: '/comercial/pedido_eliminar',
             type: 'get',
-            data: {'item_id': itemId},
+            data: {'pedido_id': itemId},
             success: function (data) {
                 $('.modal-content').html(data.form);
-                $('#id_numero_item').val(itemId).prop('disabled', true);
-                $('#moverItemModal').modal('show');
+                $('#eliminarItemModal').modal('show');
             }
         });
     });
 
-    $(document).on('submit', '#moverItemForm', function (event) {
+    $(document).on('submit', '#eliminarItemForm', function (event) {
         event.preventDefault();
-        $('#id_numero_item').prop('disabled', false);
-        var serializedData = $(this).serialize() + '&item_id=' + itemId;
+        var serializedData = $(this).serialize() + '&pedido_id=' + itemId;
         console.log(serializedData); // Imprimir los datos serializados
         $.ajax({
-            url: '/inventarios/recibo_items_update',
+            url: '/comercial/pedido_eliminar',
             type: 'post',
             data: serializedData,
             success: function (data) {
                 if (data.success) {
-                    $('#moverItemModal').modal('hide');
+                    $('#eliminarItemModal').modal('hide');
                     location.reload();
                 } else {
                     console.log(data);

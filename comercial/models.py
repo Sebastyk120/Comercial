@@ -202,7 +202,7 @@ class Referencias(models.Model):
         ordering = ['nombre']
 
     def __str__(self):
-        return f"{self.nombre} -N {self.referencia_nueva}"
+        return f"{self.nombre} -N {self.referencia_nueva} - {self.exportador}"
 
 
 class DetallePedido(models.Model):

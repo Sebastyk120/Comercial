@@ -2,30 +2,30 @@ $(document).ready(function () {
 
     var itemId = null;
 
-    $('.eliminar-button').click(function () {
-        itemId = $(this).data('item-id');
+    $('.mover-button').click(function () {
+        itemId = $(this).data('pedido-id');
         $.ajax({
-            url: '/inventarios/recibo_items_delete',
+            url: '/comercial/pedido_editar',
             type: 'get',
-            data: {'item_id': itemId},
+            data: {'pedido_id': itemId},
             success: function (data) {
                 $('.modal-content').html(data.form);
-                $('#eliminarItemModal').modal('show');
+                $('#moverItemModal').modal('show');
             }
         });
     });
 
-    $(document).on('submit', '#eliminarItemForm', function (event) {
+    $(document).on('submit', '#moverItemForm', function (event) {
         event.preventDefault();
-        var serializedData = $(this).serialize() + '&item_id=' + itemId;
+        var serializedData = $(this).serialize() + '&pedido_id=' + itemId;
         console.log(serializedData); // Imprimir los datos serializados
         $.ajax({
-            url: '/inventarios/recibo_items_delete',
+            url: '/comercial/pedido_editar',
             type: 'post',
             data: serializedData,
             success: function (data) {
                 if (data.success) {
-                    $('#eliminarItemModal').modal('hide');
+                    $('#moverItemModal').modal('hide');
                     location.reload();
                 } else {
                     console.log(data);

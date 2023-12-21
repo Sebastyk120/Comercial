@@ -7,11 +7,12 @@ from django.utils import timezone
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
-from .forms import SearchForm
+from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm
 from .models import Pedido, DetallePedido
 from .tables import PedidoTable, DetallePedidoTable
 
 
+# -------------------------------- Tabla De Pedidos General  ----------------------------------------------------
 class PedidoListView(SingleTableView):
     model = Pedido
     table_class = PedidoTable
@@ -32,6 +33,7 @@ class PedidoListView(SingleTableView):
         return context
 
 
+# ----------------------------------- Mostrar Detalles De Pedido General ------------------------------------------
 class DetallePedidoListView(SingleTableView):
     model = DetallePedido
     table_class = DetallePedidoTable
@@ -41,3 +43,147 @@ class DetallePedidoListView(SingleTableView):
         pedido_id = self.kwargs.get('pedido_id')
         queryset = DetallePedido.objects.filter(pedido__id=pedido_id)
         return queryset
+
+
+# -------------------------------  Formulario - Crear Pedido General - Modal (General) ----------------------------
+class PedidoCreateView(CreateView):
+    model = Pedido
+    form_class = PedidoForm
+    template_name = 'pedido_crear.html'
+    success_url = '/pedido_list_general/'
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        return form
+
+    @transaction.atomic
+    def form_valid(self, form):
+        self.object = form.save()  # Aquí es normal asignar a self.object
+        messages.success(self.request,
+                         f'El pedido para el cliente {form.cleaned_data['cliente']} se ha creado exitosamente.')
+        return JsonResponse({'success': True})
+
+    def form_invalid(self, form):
+        return JsonResponse({'success': False, 'html': render_to_string(self.template_name, {'form': form})})
+
+
+# -------------------------------  Formulario - Editar Pedido General - Modal (General) ----------------------------
+
+class PedidoUpdateView(UpdateView):
+    model = Pedido
+    form_class = EditarPedidoForm
+    template_name = 'pedido_editar.html'
+    success_url = '/pedido_list_general/'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object = None
+
+    def get_object(self, queryset=None):
+        pedido_id = self.request.POST.get('pedido_id')
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+        return pedido
+
+    def get(self, request, *args, **kwargs):
+        pedido_id = request.GET.get('pedido_id')
+        self.object = get_object_or_404(Pedido, id=pedido_id)
+        formatted_fecha_solicitud = self.object.fecha_solicitud.strftime('%Y-%m-%d')
+        formatted_fecha_entrega = self.object.fecha_entrega.strftime('%Y-%m-%d')
+        form = self.form_class(
+            instance=self.object,
+            initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega}
+        )
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            form_html = render_to_string(self.template_name, {'form': form}, request=request)
+            return JsonResponse({'form': form_html})
+        else:
+            return super().get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.form_class(request.POST, instance=self.object)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    @transaction.atomic
+    def form_valid(self, form):
+        self.object = form.save()
+        messages.success(self.request,
+                         f'El pedido para el cliente {form.cleaned_data['cliente']} se ha editado exitosamente.')
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True})
+        else:
+            return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse(
+                {'success': False, 'html': render_to_string(self.template_name, {'form': form}, request=self.request)})
+        else:
+            return super().form_invalid(form)
+
+
+# -------------------------------  Formulario - Eliminar Pedido General - Modal (General) ----------------------------
+
+class PedidoDeleteView(UpdateView):
+    model = Pedido
+    form_class = EliminarPedidoForm
+    template_name = 'pedido_eliminar.html'
+    success_url = '/pedido_list_general/'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object = None
+
+    def get_object(self, queryset=None):
+        pedido_id = self.request.POST.get('pedido_id')
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+        return pedido
+
+    def get(self, request, *args, **kwargs):
+        pedido_id = request.GET.get('pedido_id')
+        self.object = get_object_or_404(Pedido, id=pedido_id)
+        formatted_fecha_solicitud = self.object.fecha_solicitud.strftime('%Y-%m-%d')
+        formatted_fecha_entrega = self.object.fecha_entrega.strftime('%Y-%m-%d')
+        form = self.form_class(
+            instance=self.object,
+            initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega}
+        )
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            form_html = render_to_string(self.template_name, {'form': form}, request=request)
+            return JsonResponse({'form': form_html})
+        else:
+            return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.form_class(request.POST, instance=self.object)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    @transaction.atomic
+    def form_valid(self, form):
+        pedido = form.save(commit=False)
+        pedido.delete()
+        messages.success(self.request,
+                         f'El pedido para el cliente {form.cleaned_data['cliente']} se ha eliminado exitosamente.')
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True})
+        else:
+            return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse(
+                {'success': False, 'html': render_to_string(self.template_name, {'form': form}, request=self.request)})
+        else:
+            return super().form_invalid(form)

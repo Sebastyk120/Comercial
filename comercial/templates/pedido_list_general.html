@@ -22,8 +22,8 @@
         </div>
     </form>
     <button type="button" class="btn btn-primary me-md-5 btn-lg" name="add" id="add" data-bs-toggle="modal"
-            data-bs-target="#modalCreateItem" href="{% url 'reciboitemscreateetnico' %}"><i
-            class="bi bi-database-fill-add"></i></button>
+            data-bs-target="#modalCreateItem" href="{% url 'pedido_crear' %}"><i
+            class="bi bi-cart-plus-fill"></i></button>
     <a type="button" class="btn btn-danger me-md-5 btn-lg" name="volver" id="volver" role="button" href="/"><i
             class="bi bi-reply-fill"></i></a>
     </div>
@@ -66,9 +66,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
             integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
             crossorigin="anonymous"></script>
-    <script src="{% static 'js/editar_item.js' %}"></script>
-    <script src="{% static 'js/crear_item.js' %}"></script>
-    <script src="{% static 'js/eliminar_item.js' %}"></script>
+    <script src="{% static 'js/editar_pedido.js' %}"></script>
+    <script src="{% static 'js/crear_pedido.js' %}"></script>
+    <script src="{% static 'js/eliminar_pedido.js' %}"></script>
     </body>
     </html>
 {% endblock %}
