@@ -1,13 +1,13 @@
 from django.contrib import messages
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, request
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.utils import timezone
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
-from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm
+from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm, DetallePedidoForm
 from .models import Pedido, DetallePedido
 from .tables import PedidoTable, DetallePedidoTable
 
@@ -43,6 +43,11 @@ class DetallePedidoListView(SingleTableView):
         pedido_id = self.kwargs.get('pedido_id')
         queryset = DetallePedido.objects.filter(pedido__id=pedido_id)
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pedido_id'] = self.kwargs.get('pedido_id')
+        return context
 
 
 # -------------------------------  Formulario - Crear Pedido General - Modal (General) ----------------------------
@@ -187,3 +192,39 @@ class PedidoDeleteView(UpdateView):
                 {'success': False, 'html': render_to_string(self.template_name, {'form': form}, request=self.request)})
         else:
             return super().form_invalid(form)
+
+
+# --------------------------- Formulario Crear  Detalle De Pedido ----------------------------------------------------
+class DetallePedidoCreateView(CreateView):
+    model = DetallePedido
+    form_class = DetallePedidoForm
+    template_name = 'detalle_pedido_crear.html'
+    success_url = '/detalle_pedido_crear/'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        pedido_id = self.kwargs.get('pedido_id') or self.request.GET.get('pedido_id')
+        if pedido_id:
+            initial['pedido'] = pedido_id
+        return initial
+
+    @transaction.atomic
+    def form_valid(self, form):
+        pedido_id = self.kwargs.get('pedido_id')
+        print(pedido_id)
+        if pedido_id:
+            pedido = get_object_or_404(Pedido, pk=pedido_id)
+            form.instance.pedido = pedido
+
+        self.object = form.save()
+        messages.success(self.request, f'El detalle de pedido para el pedido {pedido_id} se ha creado exitosamente.')
+        return JsonResponse({'success': True})
+
+    def form_invalid(self, form):
+        errors = form.errors.as_json()
+        return JsonResponse({'success': False, 'error': errors})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['pedido_id'] = self.kwargs.get('pedido_id')
+        return context

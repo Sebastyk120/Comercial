@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+
+/*         Name of items    */
+
+
+[name="pedido"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="fruta"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="cajas_solicitadas"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="cajas_enviadas"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="tipo_caja"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="referencia"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="lleva_contenedor"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="tarifa_comision"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="valor_x_caja_usd"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="no_cajas_nc"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+
+[name="presentacion"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}
+
+[name="afecta_comision"] {
+
+    width: 100%;
+    border-radius: 4px;
+    border: none;
+    padding: 8px 12px;
+
+}

@@ -15,11 +15,13 @@
     </head>
     <body>
     <br>
-    <h1 class="align-center">Detalle De Pedido</h1>
+    <h1 class="align-center">Detalle De Pedido {{ pedido_id }}</h1>
     <button type="button" class="btn btn-primary me-md-5 btn-sm" name="add" id="add" data-bs-toggle="modal"
-            data-bs-target="#modalCreateItem" href="{% url 'reciboitemscreateetnico' %}"><i
-            class="bi bi-bag-plus-fill"></i> Agregar</button>
-    <a type="button" class="btn btn-danger me-md-5 btn-sm" name="volver" id="volver" role="button" href="{% url 'pedido_list_general' %}"><i
+            data-bs-target="#adddetalleItemModal" href="{% url 'detalle_pedido_crear' pedido_id %}"><i
+            class="bi bi-bag-plus-fill"></i> Agregar
+    </button>
+    <a type="button" class="btn btn-danger me-md-5 btn-sm" name="volver" id="volver" role="button"
+       href="{% url 'pedido_list_general' %}"><i
             class="bi bi-reply-fill"></i> Pedidos</a>
     </div>
     <div class="container-fluid">
@@ -27,10 +29,11 @@
     </div>
 
     <!-- Crear Detalle Pedido Modal -->
-    <div class="modal fade text-white " id="modalCreateItem" tabindex="-1" aria-labelledby="modalCreateItemLabel"
+    <div class="modal fade text-white" id="adddetalleItemModal" tabindex="-1" role="dialog"
+         aria-labelledby="adddetalleItemModalLabel"
          aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content text-white bg-dark">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content bg-dark">
             </div>
         </div>
     </div>
@@ -55,6 +58,8 @@
             </div>
         </div>
     </div>
+
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
             integrity="sha384-oBqDVmMz9ATKxIep9tiCxS/Z9fNfEXiDAYTujMAeBAsjFuCZSmKbSSUnQlmh/jp3"
@@ -63,8 +68,18 @@
             integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
             crossorigin="anonymous"></script>
     <script src="{% static 'js/editar_item.js' %}"></script>
-    <script src="{% static 'js/crear_item.js' %}"></script>
+    <script src="{% static 'js/crear_detalle_pedido.js' %}"></script>
     <script src="{% static 'js/eliminar_item.js' %}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% if messages %}{% for m in messages %}
+        <script>
+            Swal.fire({
+                title: "Operación Exitosa",
+                text: "{{m}}",
+                icon: "success",
+            });
+        </script>
+    {% endfor %}{% endif %}
     </body>
     </html>
 {% endblock %}

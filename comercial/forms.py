@@ -1,6 +1,7 @@
 from django import forms
-from django.forms import DateInput
-from .models import Pedido, Cliente
+from django.forms import DateInput, HiddenInput
+
+from .models import Pedido, Cliente, DetallePedido
 
 
 class SearchForm(forms.Form):
@@ -88,3 +89,12 @@ class EliminarPedidoForm(forms.ModelForm):
         self.fields['numero_factura'].disabled = True
         self.fields['nota_credito_no'].disabled = True
         self.fields['motivo_nota_credito'].disabled = True
+
+
+# ------------------------------------ Formulario Crear Detalle Pedido ---------------------------------------------
+class DetallePedidoForm(forms.ModelForm):
+    class Meta:
+        model = DetallePedido
+        fields = ['pedido', 'fruta', 'presentacion', 'cajas_solicitadas', 'cajas_enviadas',
+                  'tipo_caja', 'referencia', 'lleva_contenedor', 'tarifa_comision',
+                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision']
