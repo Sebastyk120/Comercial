@@ -4,6 +4,8 @@ from django.db import models
 from django.db.models import Sum
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from simple_history.models import HistoricalRecords
+
 from .choices import motivo_nota
 from datetime import datetime, timedelta
 
@@ -119,6 +121,7 @@ class Pedido(models.Model):
                                                 blank=True)
     fecha_pago_comision = models.DateField(verbose_name="Fecha De Pago Comision", null=True, blank=True)
     estado_comision = models.CharField(max_length=50, verbose_name="Estado", editable=False)
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         # Campos Calculados
@@ -241,6 +244,7 @@ class DetallePedido(models.Model):
     valor_total_comision_x_producto = models.DecimalField(max_digits=10, decimal_places=2,
                                                           verbose_name="Valor Comision X Producto", null=True,
                                                           blank=True, editable=False)
+    history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
         # Configurar campos de otros modelos:
