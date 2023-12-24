@@ -8,4 +8,6 @@ urlpatterns = [
     path('pedido_editar', views.PedidoUpdateView.as_view(), name='pedido_editar'),
     path('pedido_eliminar', views.PedidoDeleteView.as_view(), name='pedido_eliminar'),
     path('detalle_pedido_crear/<int:pedido_id>', views.DetallePedidoCreateView.as_view(), name='detalle_pedido_crear'),
+    path('detalle_pedido_editar', views.DetallePedidoUpdateView.as_view(), name='detalle_pedido_editar'),
+    path('detalle_pedido_eliminar', views.DetallePedidoDeleteiew.as_view(), name='detalle_pedido_eliminar'),
 ]

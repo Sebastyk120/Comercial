@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import DateInput, HiddenInput
+from django.forms import DateInput
 
 from .models import Pedido, Cliente, DetallePedido
 
@@ -91,10 +91,34 @@ class EliminarPedidoForm(forms.ModelForm):
         self.fields['motivo_nota_credito'].disabled = True
 
 
-# ------------------------------------ Formulario Crear Detalle Pedido ---------------------------------------------
+# ------------------------------------ Formulario Crear o editar Detalle Pedido ---------------------------------------
 class DetallePedidoForm(forms.ModelForm):
     class Meta:
         model = DetallePedido
         fields = ['pedido', 'fruta', 'presentacion', 'cajas_solicitadas', 'cajas_enviadas',
                   'tipo_caja', 'referencia', 'lleva_contenedor', 'tarifa_comision',
                   'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision']
+
+
+# ------------------------------------ Formulario Eliminar Pedido ---------------------------------------------
+class EliminarDetallePedidoForm(forms.ModelForm):
+    class Meta:
+        model = DetallePedido
+        fields = ['pedido', 'fruta', 'presentacion', 'cajas_solicitadas', 'cajas_enviadas',
+                  'tipo_caja', 'referencia', 'lleva_contenedor', 'tarifa_comision',
+                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pedido'].disabled = True
+        self.fields['fruta'].disabled = True
+        self.fields['presentacion'].disabled = True
+        self.fields['cajas_solicitadas'].disabled = True
+        self.fields['cajas_enviadas'].disabled = True
+        self.fields['tipo_caja'].disabled = True
+        self.fields['referencia'].disabled = True
+        self.fields['lleva_contenedor'].disabled = True
+        self.fields['tarifa_comision'].disabled = True
+        self.fields['valor_x_caja_usd'].disabled = True
+        self.fields['no_cajas_nc'].disabled = True
+        self.fields['afecta_comision'].disabled = True

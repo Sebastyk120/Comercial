@@ -26,12 +26,12 @@ class PedidoTable(tables.Table):
 class DetallePedidoTable(tables.Table):
 
     editar = tables.TemplateColumn(
-        template_name='editar_pedido_button.html',
+        template_name='detalle_pedido_editar_button.html',
         orderable=False
     )
 
     eliminar = tables.TemplateColumn(
-        template_name='eliminar_pedido_button.html',
+        template_name='detalle_pedido_eliminar_button.html',
         orderable=False
     )
 
