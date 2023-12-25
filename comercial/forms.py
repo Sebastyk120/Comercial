@@ -122,3 +122,13 @@ class EliminarDetallePedidoForm(forms.ModelForm):
         self.fields['valor_x_caja_usd'].disabled = True
         self.fields['no_cajas_nc'].disabled = True
         self.fields['afecta_comision'].disabled = True
+
+
+class EditarPedidoExportadorForm(forms.ModelForm):
+    fecha_pago = forms.DateField(
+        widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}), required=False
+    )
+
+    class Meta:
+        model = Pedido
+        fields = ['valor_pagado_cliente_usd', 'comision_bancaria_usd', 'fecha_pago', 'trm_monetizacion']

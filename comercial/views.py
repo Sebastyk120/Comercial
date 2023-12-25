@@ -8,9 +8,9 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
 from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm, DetallePedidoForm, \
-    EliminarDetallePedidoForm
+    EliminarDetallePedidoForm, EditarPedidoExportadorForm
 from .models import Pedido, DetallePedido
-from .tables import PedidoTable, DetallePedidoTable
+from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable
 
 
 # -------------------------------- Tabla De Pedidos General  ----------------------------------------------------
@@ -22,6 +22,27 @@ class PedidoListView(SingleTableView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# -------------------------------- Tabla De Pedidos Etnico  ----------------------------------------------------
+class PedidoEtnicoListView(SingleTableView):
+    model = Pedido
+    table_class = PedidoExportadorTable
+    template_name = 'pedido_list_etnico.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Etnico')
         form = self.form_class(self.request.GET)
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
@@ -123,6 +144,69 @@ class PedidoUpdateView(UpdateView):
         self.object = form.save()
         messages.success(self.request,
                          f'El pedido para el cliente {form.cleaned_data['cliente']} se ha editado exitosamente.')
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True})
+        else:
+            return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse(
+                {'success': False, 'html': render_to_string(self.template_name, {'form': form}, request=self.request)})
+        else:
+            return super().form_invalid(form)
+
+
+# -------------------------------  //// Formulario - Editar Pedido Por Exportador //// ----------------------------
+
+class PedidoExportadorUpdateView(UpdateView):
+    model = Pedido
+    form_class = EditarPedidoExportadorForm
+    template_name = 'pedido_editar.html'
+    success_url = '/update_items/'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.object = None
+
+    def get_object(self, queryset=None):
+        pedido_id = self.request.POST.get('pedido_id')
+        pedido = get_object_or_404(Pedido, id=pedido_id)
+        return pedido
+
+    def get(self, request, *args, **kwargs):
+        pedido_id = request.GET.get('pedido_id')
+        self.object = get_object_or_404(Pedido, id=pedido_id)
+        formatted_fecha_solicitud = self.object.fecha_solicitud.strftime('%Y-%m-%d')
+        formatted_fecha_entrega = self.object.fecha_entrega.strftime('%Y-%m-%d')
+        form = self.form_class(
+            instance=self.object,
+            initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega}
+        )
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            form_html = render_to_string(self.template_name, {'form': form}, request=request)
+            return JsonResponse({'form': form_html})
+        else:
+            return super().get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = self.object
+        return kwargs
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.form_class(request.POST, instance=self.object)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    @transaction.atomic
+    def form_valid(self, form):
+        self.object = form.save()
+        messages.success(self.request,
+                         f'El pedido se ha editado exitosamente.')
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'success': True})
         else:

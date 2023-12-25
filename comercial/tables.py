@@ -24,7 +24,6 @@ class PedidoTable(tables.Table):
 
 
 class DetallePedidoTable(tables.Table):
-
     editar = tables.TemplateColumn(
         template_name='detalle_pedido_editar_button.html',
         orderable=False
@@ -37,4 +36,20 @@ class DetallePedidoTable(tables.Table):
 
     class Meta:
         model = DetallePedido
+        template_name = "django_tables2/bootstrap5-responsive.html"
+
+
+class PedidoExportadorTable(tables.Table):
+    detalle = tables.TemplateColumn(
+        template_name='detalle_pedido_button.html',
+        orderable=False
+    )
+
+    editar = tables.TemplateColumn(
+        template_name='editar_pedido_button.html',
+        orderable=False
+    )
+
+    class Meta:
+        model = Pedido
         template_name = "django_tables2/bootstrap5-responsive.html"
