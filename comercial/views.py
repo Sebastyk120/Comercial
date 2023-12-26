@@ -55,6 +55,48 @@ class PedidoEtnicoListView(SingleTableView):
         return context
 
 
+# -------------------------------- Tabla De Pedidos Fieldex  ----------------------------------------------------
+class PedidoFieldexListView(SingleTableView):
+    model = Pedido
+    table_class = PedidoExportadorTable
+    template_name = 'pedido_list_fieldex.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Fieldex')
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# -------------------------------- Tabla De Pedidos Juan Matas  ----------------------------------------------------
+class PedidoJuanListView(SingleTableView):
+    model = Pedido
+    table_class = PedidoExportadorTable
+    template_name = 'pedido_list_Juan.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Juan_Matas')
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
 # ----------------------------------- Mostrar Detalles De Pedido General ------------------------------------------
 class DetallePedidoListView(SingleTableView):
     model = DetallePedido
@@ -116,10 +158,18 @@ class PedidoUpdateView(UpdateView):
         self.object = get_object_or_404(Pedido, id=pedido_id)
         formatted_fecha_solicitud = self.object.fecha_solicitud.strftime('%Y-%m-%d')
         formatted_fecha_entrega = self.object.fecha_entrega.strftime('%Y-%m-%d')
-        form = self.form_class(
-            instance=self.object,
-            initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega}
-        )
+        if self.object.fecha_pago_comision is None:
+            form = self.form_class(
+                instance=self.object,
+                initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega}
+            )
+        else:
+            formatted_fecha_pago_comision = self.object.fecha_pago_comision.strftime('%Y-%m-%d')
+            form = self.form_class(
+                instance=self.object,
+                initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega,
+                         'fecha_pago_comision': formatted_fecha_pago_comision}
+            )
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             form_html = render_to_string(self.template_name, {'form': form}, request=request)
             return JsonResponse({'form': form_html})
@@ -179,10 +229,18 @@ class PedidoExportadorUpdateView(UpdateView):
         self.object = get_object_or_404(Pedido, id=pedido_id)
         formatted_fecha_solicitud = self.object.fecha_solicitud.strftime('%Y-%m-%d')
         formatted_fecha_entrega = self.object.fecha_entrega.strftime('%Y-%m-%d')
-        form = self.form_class(
-            instance=self.object,
-            initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega}
-        )
+        if self.object.fecha_pago_comision is None:
+            form = self.form_class(
+                instance=self.object,
+                initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega}
+            )
+        else:
+            formatted_fecha_pago_comision = self.object.fecha_pago_comision.strftime('%Y-%m-%d')
+            form = self.form_class(
+                instance=self.object,
+                initial={'fecha_solicitud': formatted_fecha_solicitud, 'fecha_entrega': formatted_fecha_entrega,
+                         'fecha_pago_comision': formatted_fecha_pago_comision}
+            )
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             form_html = render_to_string(self.template_name, {'form': form}, request=request)
             return JsonResponse({'form': form_html})

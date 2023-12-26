@@ -1,231 +1,33 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
 
-body {
-
-    background-image: url(../img/fondojornadas.png);
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    font-family: 'Montserrat';
-
-}
-
-h1 {
-
-    justify-content: center;
-    text-align: center;
-    font-family: 'Montserrat';
-    font-weight: 300;
-    font-size:  40px;
-}
-label {
-    font-family: 'Montserrat';
-    font-weight: 600;
-    margin: 10px;
-}
+/*         Name of items    */
 
 
-[name="numero_item"] {
-
+[name="numero_item"],
+[name="cantidad_cajas"],
+[name="documento"],
+[name="proveedor"],
+[name="bodega"],
+[name="fecha_movimiento"],
+[name="propiedad"],
+[name="observaciones"] {
     width: 100%;
     border-radius: 4px;
     border: none;
     padding: 8px 12px;
-    background-color: #6f6f6f;
-    font-family: 'Montserrat';
-    color: white;
-
+    color: black; /* Color por defecto */
 }
 
-[name="cantidad_cajas"]{
-
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: none;
-    background-color: #6f6f6f;
-    font-family: 'Montserrat';
-    color: white;
-
+/* Estilos específicos para campos deshabilitados */
+[name="numero_item"]:disabled,
+[name="cantidad_cajas"]:disabled,
+[name="documento"]:disabled,
+[name="proveedor"]:disabled,
+[name="bodega"]:disabled,
+[name="fecha_movimiento"]:disabled,
+[name="propiedad"]:disabled,
+[name="observaciones"]:disabled {
+    color: white; /* Color cuando estén deshabilitados */
+    background-color: black;
 }
 
-[name="documento"]{
-
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 4px;
-    border: none;
-    background-color: #6f6f6f;
-    font-family: 'Montserrat';
-    color: white;
-
-}
-
-[name="bodega"] {
-
-    width: 100%;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #6f6f6f;
-    font-family: 'Montserrat';
-    color: white;
-
-
-}
-
-[name="proveedor"]{
-
-    width: 100%;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #6f6f6f;
-    font-family: 'Montserrat';
-    color: white;
-
-}
-
-[name="fecha_movimiento"]{
-
-    width: 100%;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #6f6f6f;
-    font-family: 'Montserrat';
-    color: white;
-
-}
-
-[name="propiedad"]{
-
-    width: 100%;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #6f6f6f;
-    font-family: 'Montserrat';
-    color: white;
-
-}
-
-[name="observaciones"]{
-
-    width: 100%;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #6f6f6f;
-    font-family: 'Montserrat';
-    color: white;
-
-}
-
-[name="item_busqueda"]{
-
-    width: 2%;
-    border-radius: 4px;
-    border: none;
-    padding: 8px 12px;
-    background-color: #e0e0e0;
-    font-family: 'Montserrat';
-    margin-right: 5px;
-    transition: 0.3s;
-
-
-}
-
-[name="item_busqueda"]:active,
-[name="item_busqueda"]:focus {
-    width: 10%;
-}
-
-[name="volver"]{
-
-    position: absolute;
-    display: flex;
-    left: 90%;
-
-}
-
-
-
-
-.table {
-    border-collapse: collapse;
-    margin: 25px 0;
-    font-size: 0.9em;
-    font-family: sans-serif;
-    min-width: 400px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    background-color: rgb(255, 255, 255);
-    font-family: 'Montserrat';
-    font-weight: bold;
-    text-align: center;
-}
-
-.table thead tr {
-    background-color: #006098;
-    color: #ffffff;
-    text-align: center;
-
-}
-
-.table thead tr {
-    background-color: #006098;
-    color: #ffffff;
-    text-align: center;
-
-}
-
-.table thead tr {
-    background-color: #006098;
-    color: #ffffff;
-    text-align: center;
-
-}
-
-.table tbody tr.active-row {
-    font-weight: bold;
-    color: #006098;
-}
-
-A:link {
-    color: rgb(255, 255, 255);
-    text-decoration: none
-}
-
-A:hover {
-    color: rgb(255, 255, 255);
-    text-decoration: none
-}
-
-A:visited {
-    color: #006098;
-    text-decoration: none
-}
-
-.page-link{
-
-    z-index: 3;
-    color: #006098(--bs-pagination-active-border-color);
-    background-color: #006098;
-    border-color: #006098(--bs-pagination-active-border-color);
-
-}
-
-#mover{
-
-    transition: all 300ms ease 0ms;
-    box-shadow: 0px 8px  15px rgba(0, 0, 0, 0.1);
-    z-index: 99;
-
-}
-
-#mover:hover{
-
-    box-shadow: 0px 15px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-5px);
-}

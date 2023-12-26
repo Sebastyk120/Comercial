@@ -77,8 +77,8 @@ class Cliente(models.Model):
 
 class Pedido(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name="Cliente")
-    fecha_solicitud = models.DateField(verbose_name="Fecha Solicitud", null=True, blank=True)
-    fecha_entrega = models.DateField(verbose_name="Fecha Entrega", null=True, blank=True)
+    fecha_solicitud = models.DateField(verbose_name="Fecha Solicitud")
+    fecha_entrega = models.DateField(verbose_name="Fecha Entrega")
     exportadora = models.ForeignKey(Exportador, on_delete=models.CASCADE, verbose_name="Exportador")
     dias_cartera = models.IntegerField(verbose_name="Dias Cartera", editable=False, null=True, blank=True)
     awb = models.CharField(max_length=50, verbose_name="AWB", null=True, blank=True)

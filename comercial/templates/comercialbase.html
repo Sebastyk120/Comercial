@@ -10,7 +10,7 @@
     <title>Comercial</title>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg" style="background-color: #006098">
+<nav class="navbar navbar-expand-lg" style="background-color: #00bfff">
     <div class="container-fluid">
         <a class="navbar-brand" href="{% url 'home' %}">Heavens Corp - Comercial</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
@@ -24,7 +24,7 @@
                        aria-expanded="false">
                         Pedidos Por Exportador
                     </a>
-                    <div class="submenu">
+                    <div class="submenu" style="background-color: #00bfff">
                         <ul>
                             <li><a href="{% url 'reciboitemslistfieldex' %}">Pedidos Etnico</a></li>
                             <li><a href="{% url 'reciboitemslistjuan' %}">Pedidos Fieldex</a></li>
@@ -38,13 +38,13 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                        aria-expanded="false">
-                        Inventarios Por Bodegas
+                        Comisiones Por Exportador
                     </a>
-                    <div class="submenu">
+                    <div class="submenu" style="background-color: #00bfff">
                         <ul>
-                            <li><a href="{% url 'inventario_bodega_etnico' %}">Inventario Etnico</a></li>
-                            <li><a href="{% url 'inventario_bodega_fieldex' %}">Inventario Fieldex</a></li>
-                            <li><a href="{% url 'inventario_bodega_juan' %}">Inventario Juan Matas</a></li>
+                            <li><a href="{% url 'inventario_bodega_etnico' %}">Comisiones Etnico</a></li>
+                            <li><a href="{% url 'inventario_bodega_fieldex' %}">Comisiones Fieldex</a></li>
+                            <li><a href="{% url 'inventario_bodega_juan' %}">Comisiones Juan Matas</a></li>
                         </ul>
                     </div>
                 </li>

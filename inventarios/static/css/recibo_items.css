@@ -6,9 +6,8 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    font-family: 'Montserrat', serif;
+    font-family: 'Montserrat', sans-serif;
 }
-
 
 h1 {
     justify-content: center;
@@ -27,13 +26,13 @@ h1 {
     width: 100%;
     min-width: 400px;/* Hace que la tabla ocupe el 100% del ancho disponible */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    background-color: #ece9e9; /* Puedes ajustar el color de fondo según tus preferencias */
+    background-color: #F2F2F2; /* Puedes ajustar el color de fondo según tus preferencias */
     font-weight: bold;
     text-align: center;
 }
 
 .table thead tr {
-    background-color: #006098;
+    background-color: #fbd24b;
     color: #ffffff;
     text-align: center;
 
@@ -45,7 +44,7 @@ h1 {
 }
 
 a:link {
-    color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
     text-decoration: none
 }
 
@@ -55,7 +54,7 @@ a:hover {
 }
 
 a:visited {
-    color: rgb(243, 243, 243);
+    color: rgb(0, 0, 0);
     text-decoration: none
 }
 

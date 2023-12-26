@@ -12,7 +12,7 @@
 </head>
 <body>
 <div class="modal-header">
-    <h5 class="modal-title">Crear Detalle Pedido No: {{ pedido_id }}</h5>
+    <h5 class="modal-title">Crear Detalle Pedido No: {{ pedido_id }} <i class="bi bi-bag-check-fill"></i></h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <form action="{% url 'detalle_pedido_crear' pedido_id %}" method="post">

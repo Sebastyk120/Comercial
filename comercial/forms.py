@@ -22,6 +22,9 @@ class PedidoForm(forms.ModelForm):
     fecha_entrega = forms.DateField(
         widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     )
+    fecha_pago_comision = forms.DateField(
+        widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -36,7 +39,8 @@ class PedidoForm(forms.ModelForm):
     class Meta:
         model = Pedido
         fields = ['cliente', 'fecha_solicitud', 'fecha_entrega', 'exportadora', 'awb',
-                  'numero_factura', 'nota_credito_no', 'motivo_nota_credito']
+                  'numero_factura', 'nota_credito_no', 'motivo_nota_credito', 'documento_cobro_comision',
+                  'fecha_pago_comision']
 
 
 # ------------------------------------ Formulario Editar Pedido ---------------------------------------------
@@ -48,6 +52,9 @@ class EditarPedidoForm(forms.ModelForm):
     fecha_entrega = forms.DateField(
         widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     )
+    fecha_pago_comision = forms.DateField(
+        widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+    )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -62,7 +69,8 @@ class EditarPedidoForm(forms.ModelForm):
     class Meta:
         model = Pedido
         fields = ['cliente', 'fecha_solicitud', 'fecha_entrega', 'exportadora', 'awb',
-                  'numero_factura', 'nota_credito_no', 'motivo_nota_credito']
+                  'numero_factura', 'nota_credito_no', 'motivo_nota_credito', 'documento_cobro_comision',
+                  'fecha_pago_comision']
 
 
 # ------------------------------------ Formulario Eliminar Pedido ---------------------------------------------
@@ -73,11 +81,15 @@ class EliminarPedidoForm(forms.ModelForm):
     fecha_entrega = forms.DateField(
         widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     )
+    fecha_pago_comision = forms.DateField(
+        widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+    )
 
     class Meta:
         model = Pedido
         fields = ['cliente', 'fecha_solicitud', 'fecha_entrega', 'exportadora', 'awb',
-                  'numero_factura', 'nota_credito_no', 'motivo_nota_credito']
+                  'numero_factura', 'nota_credito_no', 'motivo_nota_credito', 'documento_cobro_comision',
+                  'fecha_pago_comision']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -89,6 +101,8 @@ class EliminarPedidoForm(forms.ModelForm):
         self.fields['numero_factura'].disabled = True
         self.fields['nota_credito_no'].disabled = True
         self.fields['motivo_nota_credito'].disabled = True
+        self.fields['documento_cobro_comision'].disabled = True
+        self.fields['fecha_pago_comision'].disabled = True
 
 
 # ------------------------------------ Formulario Crear o editar Detalle Pedido ---------------------------------------
