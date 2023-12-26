@@ -24,8 +24,8 @@
     <button type="button" class="btn btn-primary me-md-5 btn-lg" name="add" id="add" data-bs-toggle="modal"
             data-bs-target="#modalCreateItem" href="{% url 'reciboitemscreatefieldex' %}"><i
             class="bi bi-database-fill-add"></i></button>
-    <a type="button" class="btn btn-danger me-md-5 btn-lg" name="volver" id="volver" role="button" href="/"><i
-            class="bi bi-reply-fill"></i></a>
+    <a type="button" class="btn btn-danger me-md-5 btn-lg" name="volver" id="volver" role="button"
+       onclick="history.back();"><i class="bi bi-reply-fill"></i></a>
     </div>
     <div class="container-fluid">
         {% render_table table %}

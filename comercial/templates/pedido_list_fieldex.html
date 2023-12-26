@@ -21,8 +21,8 @@
             <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
         </div>
     </form>
-    <a type="button" class="btn btn-danger me-md-5 btn-lg" name="volver" id="volver" role="button" href="/"><i
-            class="bi bi-reply-fill"></i></a>
+    <a type="button" class="btn btn-danger me-md-5 btn-lg" name="volver" id="volver" role="button"
+       onclick="history.back();"><i class="bi bi-reply-fill"></i></a>
     <div class="container-fluid">
         {% render_table table %}
     </div>

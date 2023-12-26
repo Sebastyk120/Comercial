@@ -68,11 +68,11 @@
 
 /*      Custom Icons    */
 
-.icon-registro {
-  width: 90px; 
+.icon-pedidosheavens {
+  width: 90px;
   height: 90px;
   border-radius: 8px;
-  background-image: url(../img/registro.png);
+  background-image: url(../img/heavens.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -83,11 +83,11 @@
   font-size: 12px;
 }
 
-.icon-ausentismos {
+.icon-pedidosetnico {
   width: 90px; 
   height: 90px;
   border-radius: 8px;
-  background-image: url(../img/ausentismos.png);
+  background-image: url(../img/etnico.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -98,11 +98,11 @@
   font-size: 12px;
 }
 
-.icon-novedades {
+.icon-pedidosfieldex {
   width: 90px; 
   height: 90px;
   border-radius: 8px;
-  background-image: url(../img/novedades.png);
+  background-image: url(../img/fieldex.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -113,11 +113,11 @@
   font-size: 12px;
 }
 
-.icon-descuentos {
+.icon-pedidosjuan {
   width: 90px; 
   height: 90px;
   border-radius: 8px;
-  background-image: url(../img/descuentos.png);
+  background-image: url(../img/juan_matas.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -127,11 +127,11 @@
   font-size: 12px;
 }
 
-.icon-inventariotr {
+.icon-inventarioheavens {
   width: 90px; 
   height: 90px;
   border-radius: 8px;
-  background-image: url(../img/inventario.png);
+  background-image: url(../img/inventarioheavens.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -142,11 +142,11 @@
   font-size: 12px;
 }
 
-.icon-nacionales {
+.icon-inventarioetnico {
   width: 90px; 
   height: 90px;
   border-radius: 8px;
-  background-image: url(../img/nacionales.png);
+  background-image: url(../img/inventarioetnico.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -157,11 +157,11 @@
   font-size: 12px;
 }
 
-.icon-porcentajes {
+.icon-inventariofieldex {
   width: 90px; 
   height: 90px;
   border-radius: 8px;
-  background-image: url(../img/porcentajes.png);
+  background-image: url(../img/fieldexinventario.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -173,11 +173,11 @@
 }
 
 
-.icon-calidad {
+.icon-inventariojuan {
   width: 90px; 
   height: 90px;
   border-radius: 8px;
-  background-image: url(../img/calidad.png);
+  background-image: url(../img/inventariojuan.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;

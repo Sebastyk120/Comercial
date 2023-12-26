@@ -1,9 +1,12 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
 from comercial.models import Referencias
@@ -13,12 +16,19 @@ from .tables import MovimientoTable, ItemTable, InventarioTable
 
 
 # Create your views here.
+# Funciones para validar el Grupo del usuario y si puede acceder a la vista:
 
+def es_miembro_del_grupo(nombre_grupo):
+    def es_miembro(user):
+        return user.groups.filter(name=nombre_grupo).exists()
+    return es_miembro
 
 # -------------------------------------- Vistas Para Etnico: ---------------------------------------------------------
 
 
 # ------------------- Lista de Items Etnico  --------------------------------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Etnico'), login_url=reverse_lazy('home')), name='dispatch')
 class ItemListView(SingleTableView):
     model = Item
     table_class = ItemTable
@@ -40,6 +50,8 @@ class ItemListView(SingleTableView):
 
 
 # -------------------------------  Formulario - Crear Item Etnico - Modal (Inventario Real) ----------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Etnico'), login_url=reverse_lazy('home')), name='dispatch')
 class ItemCreateView(CreateView):
     model = Item
     form_class = ItemForm
@@ -83,6 +95,8 @@ class ItemCreateView(CreateView):
 
 
 # ----------------------------/// Editar Item Recibo  O de ingreso/// ------------------------------------------------
+
+@method_decorator(login_required, name='dispatch')
 class ItemUpdateView(UpdateView):
     model = Item
     form_class = EditarItemForm
@@ -155,6 +169,7 @@ class ItemUpdateView(UpdateView):
 
 
 # ----------------------------/// Eliminar Item Recibo  O de ingreso/// ------------------------------------------------
+@method_decorator(login_required, name='dispatch')
 class ItemDeleteView(UpdateView):
     model = Item
     form_class = EliminarItemForm
@@ -220,7 +235,8 @@ class ItemDeleteView(UpdateView):
 
 # -------------------------------------- Vistas Para Fieldex: ---------------------------------------------------------
 # ------------------- Lista de Items Fieldex  --------------------------------------------------------------------------
-
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url=reverse_lazy('home')), name='dispatch')
 class ItemListViewFieldex(SingleTableView):
     model = Item
     table_class = ItemTable
@@ -242,7 +258,8 @@ class ItemListViewFieldex(SingleTableView):
 
 
 # ---------------------------- //// Crear Item Fieldex (Ingreso) //////////////////----------------------
-
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url=reverse_lazy('home')), name='dispatch')
 class ItemCreateViewFieldex(CreateView):
     model = Item
     form_class = ItemForm
@@ -289,6 +306,8 @@ class ItemCreateViewFieldex(CreateView):
 
 
 # Mostrar Tabla Recibo - Bodega Recibo Juan Matas (Mostrar Items de ingreso)
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url=reverse_lazy('home')), name='dispatch')
 class ItemListViewJuan(SingleTableView):
     model = Item
     table_class = ItemTable
@@ -310,7 +329,8 @@ class ItemListViewJuan(SingleTableView):
 
 
 # ---------------------------- //// Crear Item Juan Matas (Ingreso) //////////////////----------------------
-
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url=reverse_lazy('home')), name='dispatch')
 class ItemCreateViewJuan(CreateView):
     model = Item
     form_class = ItemForm
@@ -381,6 +401,8 @@ class MovimientoListView(SingleTableView):
 # ----------------------- ///  Lista De Inventarios Por Bodega /// ----------------------------------------------
 
 # ----------------------- ///  Lista De Inventarios Por Etnico /// ----------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Etnico'), login_url=reverse_lazy('home')), name='dispatch')
 class InventarioBodegaEtnicoListView(SingleTableView):
     model = Inventario
     table_class = InventarioTable
@@ -402,6 +424,8 @@ class InventarioBodegaEtnicoListView(SingleTableView):
 
 
 # ----------------------- ///  Lista De Inventarios Por Fieldex /// ----------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url=reverse_lazy('home')), name='dispatch')
 class InventarioBodegaFieldexListView(SingleTableView):
     model = Inventario
     table_class = InventarioTable
@@ -423,6 +447,8 @@ class InventarioBodegaFieldexListView(SingleTableView):
 
 
 # ----------------------- ///  Lista De Inventarios Por Juan Matas /// ----------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url=reverse_lazy('home')), name='dispatch')
 class InventarioBodegaJuanListView(SingleTableView):
     model = Inventario
     table_class = InventarioTable

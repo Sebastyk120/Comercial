@@ -1,9 +1,12 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
 from django.http import JsonResponse, request
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
+from django.urls import reverse_lazy
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
@@ -13,7 +16,17 @@ from .models import Pedido, DetallePedido
 from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable
 
 
+# -----------Funcion para permisos por grupo ---------------------
+def es_miembro_del_grupo(nombre_grupo):
+    def es_miembro(user):
+        return user.groups.filter(name=nombre_grupo).exists()
+
+    return es_miembro
+
+
 # -------------------------------- Tabla De Pedidos General  ----------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
 class PedidoListView(SingleTableView):
     model = Pedido
     table_class = PedidoTable
@@ -35,6 +48,8 @@ class PedidoListView(SingleTableView):
 
 
 # -------------------------------- Tabla De Pedidos Etnico  ----------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Etnico'), login_url=reverse_lazy('home')), name='dispatch')
 class PedidoEtnicoListView(SingleTableView):
     model = Pedido
     table_class = PedidoExportadorTable
@@ -56,6 +71,8 @@ class PedidoEtnicoListView(SingleTableView):
 
 
 # -------------------------------- Tabla De Pedidos Fieldex  ----------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url=reverse_lazy('home')), name='dispatch')
 class PedidoFieldexListView(SingleTableView):
     model = Pedido
     table_class = PedidoExportadorTable
@@ -77,6 +94,8 @@ class PedidoFieldexListView(SingleTableView):
 
 
 # -------------------------------- Tabla De Pedidos Juan Matas  ----------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url=reverse_lazy('home')), name='dispatch')
 class PedidoJuanListView(SingleTableView):
     model = Pedido
     table_class = PedidoExportadorTable
@@ -98,6 +117,7 @@ class PedidoJuanListView(SingleTableView):
 
 
 # ----------------------------------- Mostrar Detalles De Pedido General ------------------------------------------
+@method_decorator(login_required, name='dispatch')
 class DetallePedidoListView(SingleTableView):
     model = DetallePedido
     table_class = DetallePedidoTable
@@ -115,6 +135,7 @@ class DetallePedidoListView(SingleTableView):
 
 
 # -------------------------------  Formulario - Crear Pedido General - Modal (General) ----------------------------
+@method_decorator(login_required, name='dispatch')
 class PedidoCreateView(CreateView):
     model = Pedido
     form_class = PedidoForm
@@ -137,7 +158,8 @@ class PedidoCreateView(CreateView):
 
 
 # -------------------------------  Formulario - Editar Pedido General - Modal (General) ----------------------------
-
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
 class PedidoUpdateView(UpdateView):
     model = Pedido
     form_class = EditarPedidoForm
@@ -208,7 +230,7 @@ class PedidoUpdateView(UpdateView):
 
 
 # -------------------------------  //// Formulario - Editar Pedido Por Exportador //// ----------------------------
-
+@method_decorator(login_required, name='dispatch')
 class PedidoExportadorUpdateView(UpdateView):
     model = Pedido
     form_class = EditarPedidoExportadorForm
@@ -279,7 +301,8 @@ class PedidoExportadorUpdateView(UpdateView):
 
 
 # -------------------------------  Formulario - Eliminar Pedido General - Modal (General) ----------------------------
-
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
 class PedidoDeleteView(UpdateView):
     model = Pedido
     form_class = EliminarPedidoForm
@@ -338,6 +361,8 @@ class PedidoDeleteView(UpdateView):
 
 
 # --------------------------- Formulario Crear  Detalle De Pedido ----------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
 class DetallePedidoCreateView(CreateView):
     model = DetallePedido
     form_class = DetallePedidoForm
@@ -373,7 +398,8 @@ class DetallePedidoCreateView(CreateView):
 
 
 # ---------------------------- Formulario Editar Detalle De Pedido --------------------------------------------
-
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
 class DetallePedidoUpdateView(UpdateView):
     model = DetallePedido
     form_class = DetallePedidoForm
@@ -433,7 +459,8 @@ class DetallePedidoUpdateView(UpdateView):
 
 
 # ---------------------------- Formulario Eliminar Detalle De Pedido --------------------------------------------
-
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
 class DetallePedidoDeleteiew(UpdateView):
     model = DetallePedido
     form_class = EliminarDetallePedidoForm
