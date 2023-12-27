@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'autenticacion.apps.AutenticacionConfig',
+    'cartera.apps.CarteraConfig',
     'inventarios.apps.InventariosConfig',
     'comercial.apps.ComercialConfig',
     'django_tables2',

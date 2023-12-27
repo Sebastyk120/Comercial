@@ -23,5 +23,6 @@ urlpatterns = [
     path('autenticacion/', include('autenticacion.urls')),
     path('comercial/', include('comercial.urls')),
     path('inventarios/', include('inventarios.urls')),
+    path('cartera/', include('cartera.urls')),
     path('', principal.home, name='home_principal')
 ]
