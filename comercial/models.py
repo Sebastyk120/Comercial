@@ -93,7 +93,7 @@ class Pedido(models.Model):
                                                        verbose_name="Total Nota Credito", null=True, blank=True,
                                                        default=0)
     tasa_representativa_usd_diaria = models.DecimalField(max_digits=10, decimal_places=2, editable=False,
-                                                         verbose_name="TRM Representativa", null=True, blank=True)
+                                                         verbose_name="TRM Representativa", null=True, blank=True, default=0)
     valor_pagado_cliente_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
                                                    verbose_name="Valor Pagado Cliente",
                                                    null=True, blank=True, default=0)
