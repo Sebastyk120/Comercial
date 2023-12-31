@@ -121,7 +121,7 @@ class Pedido(models.Model):
     documento_cobro_comision = models.CharField(max_length=50, verbose_name="Documento Cobro Comision", null=True,
                                                 blank=True)
     fecha_pago_comision = models.DateField(verbose_name="Fecha De Pago Comision", null=True, blank=True)
-    estado_comision = models.CharField(max_length=50, verbose_name="Estado", editable=False)
+    estado_comision = models.CharField(max_length=50, verbose_name="Estado Com", editable=False)
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):

@@ -1,0 +1,20 @@
+<!-- tu_template.html -->
+<form method="get">
+    {{ form.as_p }}
+    <button type="submit">Comparar</button>
+</form>
+
+{% if comparaciones %}
+    <table>
+        <tr>
+            <th>Modelo</th>
+            <th>{{ campo_seleccionado|title }}</th>
+        </tr>
+        {% for modelo, datos in comparaciones.items %}
+            <tr>
+                <td>{{ modelo }}</td>
+                <td>{{ datos.campo_seleccionado }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}

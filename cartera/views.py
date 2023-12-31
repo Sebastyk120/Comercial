@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.urls import reverse_lazy
 from .models import Presentacion, CotizacionEtnico, CotizacionFieldex, CotizacionJuan
-from .forms import CotizacionForm
+from .forms import CotizacionForm, ComparacionPreciosForm
 
 
 # Funciones para validar el Grupo del usuario y si puede acceder a la vista:
@@ -244,3 +244,38 @@ class ActualizarCotizacionesJuanView(View):
                     setattr(cotizacion, field.name, form.cleaned_data.get(field_name))
             cotizacion.trm_cotizacion = trm_cotizacion
             cotizacion.save()
+
+
+# //// -------------------- Comparador De Cotizaciones ---------------------------------------- /////
+
+
+def comparar_precios_view(request):
+    form = ComparacionPreciosForm(request.GET or None)
+    comparaciones = {}
+    campo_seleccionado = None
+
+    if form.is_valid():
+        presentacion = form.cleaned_data['presentacion']
+        semana = form.cleaned_data['semana']
+        campo_seleccionado = form.cleaned_data['tipo_comparacion']
+
+        # Obtener los datos de los modelos
+        datos = {
+            'etnico': CotizacionEtnico.objects.filter(presentacion=presentacion, semana=semana).first(),
+            'fieldex': CotizacionFieldex.objects.filter(presentacion=presentacion, semana=semana).first(),
+            'juan': CotizacionJuan.objects.filter(presentacion=presentacion, semana=semana).first(),
+        }
+
+        for modelo, obj in datos.items():
+            if obj:
+                comparaciones[modelo] = {
+                    'presentacion': obj.presentacion,
+                    'semana': obj.semana,
+                    'campo_seleccionado': getattr(obj, campo_seleccionado, None)
+                }
+
+    return render(request, 'comparador_cotizaciones.html', {
+        'form': form,
+        'comparaciones': comparaciones,
+        'campo_seleccionado': campo_seleccionado
+    })

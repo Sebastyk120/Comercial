@@ -25,3 +25,18 @@ class CotizacionForm(forms.Form):
                         decimal_places=field.decimal_places,
                         required=False
                     )
+
+
+class ComparacionPreciosForm(forms.Form):
+    OPCIONES_COMPARACION = [
+        ('', 'Seleccione una opción'),
+        ('precio_fob', 'precio_fob'),
+        ('comi_fob', 'comi_fob'),
+        ('precio_dxb', 'precio_dxb'),
+        ('comi_dxb', 'comi_dxb'),
+        # Agrega más opciones según tus campos
+    ]
+
+    presentacion = forms.ModelChoiceField(queryset=Presentacion.objects.all(), required=True)
+    semana = forms.IntegerField(min_value=1, max_value=56, required=True)
+    tipo_comparacion = forms.ChoiceField(choices=OPCIONES_COMPARACION, required=True)
