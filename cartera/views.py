@@ -261,9 +261,9 @@ def comparar_precios_view(request):
 
         # Obtener los datos de los modelos
         datos = {
-            'etnico': CotizacionEtnico.objects.filter(presentacion=presentacion, semana=semana).first(),
-            'fieldex': CotizacionFieldex.objects.filter(presentacion=presentacion, semana=semana).first(),
-            'juan': CotizacionJuan.objects.filter(presentacion=presentacion, semana=semana).first(),
+            'Etnico': CotizacionEtnico.objects.filter(presentacion=presentacion, semana=semana).first(),
+            'Fieldex': CotizacionFieldex.objects.filter(presentacion=presentacion, semana=semana).first(),
+            'Juan Matas': CotizacionJuan.objects.filter(presentacion=presentacion, semana=semana).first(),
         }
 
         for modelo, obj in datos.items():
