@@ -1,4 +1,5 @@
 import math
+from datetime import datetime, timedelta
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
@@ -7,7 +8,6 @@ from django.dispatch import receiver
 from simple_history.models import HistoricalRecords
 
 from .choices import motivo_nota
-from datetime import datetime, timedelta
 
 
 class Fruta(models.Model):
@@ -154,9 +154,9 @@ class Pedido(models.Model):
             self.estado_comision = "Pendiente Pago"
         elif self.fecha_pago is not None and self.documento_cobro_comision is None:
             self.estado_comision = "Por Facturar"
-        elif self.fecha_pago is not None and self.documento_cobro_comision is not None and self.fecha_pago is not None:
+        elif self.fecha_pago is not None and self.documento_cobro_comision is not None and self.fecha_pago_comision is None:
             self.estado_comision = "Facturada"
-        elif self.fecha_pago is not None:
+        elif self.fecha_pago_comision is not None:
             self.estado_comision = "Pagada"
         # Llama al método save de la clase base para realizar el guardado
         super().save(*args, **kwargs)
@@ -325,3 +325,5 @@ def actualizar_inventario_al_eliminar(sender, instance, **kwargs):
         referencia=instance.referencia
     ).aggregate(Sum('cantidad_contenedores'))['cantidad_contenedores__sum'] or 0
     nuevo_inventario.save()
+
+# ////////// Señal para actualizar Tasa Representativa de bolsa de Valores //////////////////////////////

@@ -13,7 +13,7 @@ from django_tables2 import SingleTableView
 from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm, DetallePedidoForm, \
     EliminarDetallePedidoForm, EditarPedidoExportadorForm
 from .models import Pedido, DetallePedido
-from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable
+from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable, CarteraPedidoTable
 
 
 # -----------Funcion para permisos por grupo ---------------------
@@ -518,3 +518,95 @@ class DetallePedidoDeleteiew(UpdateView):
                 {'success': False, 'html': render_to_string(self.template_name, {'form': form}, request=self.request)})
         else:
             return super().form_invalid(form)
+
+
+# ------------------------- CARTERA General /// Table mostrar cartera de pedidos Heavens ///  -------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
+class CarteraHeavensListView(SingleTableView):
+    model = Pedido
+    table_class = CarteraPedidoTable
+    template_name = 'cartera_list_heavens.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# ------------------------- CARTERA /// Table mostrar cartera de pedidos Etnico ///  ---------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Etnico'), login_url=reverse_lazy('home')), name='dispatch')
+class CarteraEtnicoListView(SingleTableView):
+    model = Pedido
+    table_class = CarteraPedidoTable
+    template_name = 'cartera_list_etnico.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Etnico')
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# ------------------------- CARTERA /// Table mostrar cartera de pedidos Fieldex ///  ---------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url=reverse_lazy('home')), name='dispatch')
+class CarteraFieldexListView(SingleTableView):
+    model = Pedido
+    table_class = CarteraPedidoTable
+    template_name = 'cartera_list_fieldex.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Fieldex')
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# ------------------------- CARTERA /// Table mostrar cartera de pedidos Juan Matas ///  ---------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url=reverse_lazy('home')), name='dispatch')
+class CarteraJuanListView(SingleTableView):
+    model = Pedido
+    table_class = CarteraPedidoTable
+    template_name = 'cartera_list_juan.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Juan_Matas')
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context

@@ -1,76 +1,246 @@
+from datetime import datetime
+from django.contrib.auth.decorators import user_passes_test, login_required
+from django.utils.decorators import method_decorator
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.views import View
-
-from .models import Presentacion, Cotizacion
+from django.urls import reverse_lazy
+from .models import Presentacion, CotizacionEtnico, CotizacionFieldex, CotizacionJuan
 from .forms import CotizacionForm
 
 
-class ActualizarCotizacionesView(View):
+# Funciones para validar el Grupo del usuario y si puede acceder a la vista:
+
+def es_miembro_del_grupo(nombre_grupo):
+    def es_miembro(user):
+        return user.groups.filter(name=nombre_grupo).exists()
+
+    return es_miembro
+
+
+# --------------------------------- Cotizador Etnico ------------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Etnico'), login_url=reverse_lazy('home')), name='dispatch')
+class ActualizarCotizacionesEtnicoView(View):
     form_class = CotizacionForm
-    template_name = 'tu_template_actualizar.html'
-    semana_actual = 19  # Asegúrate de establecer la semana que deseas cargar
+    template_name = 'cotizacion_etnico.html'
 
     def get(self, request, *args, **kwargs):
-        form = self.form_class(initial=self.get_initial())
-        presentaciones_data = []
-
-        for presentacion in Presentacion.objects.all():
-            presentaciones_data.append({
-                'objeto': presentacion,
-                'campo_precio_fob': form[f'precio_fob_{presentacion.id}'],
-                'campo_comision_fob': form[f'comision_fob_{presentacion.id}'],
-                'campo_precio_dxb': form[f'precio_dxb_{presentacion.id}'],
-                'campo_comision_dxb': form[f'comision_dxb_{presentacion.id}']
-            })
-
+        semana = int(request.GET.get('semana', datetime.now().isocalendar()[1]))
+        form = self.form_class(initial=self.get_initial(semana))
+        presentaciones_data = self.get_presentaciones_data(form)
+        field_names = self.get_field_names()
         return render(request, self.template_name, {
             'form': form,
-            'presentaciones_data': presentaciones_data
+            'presentaciones_data': presentaciones_data,
+            'field_names': field_names  # Agregar esto
         })
+
+    def get_field_names(self):
+        field_names = []
+        for field in CotizacionEtnico._meta.get_fields():
+            if hasattr(field, 'max_digits') and field.name != 'trm_cotizacion':  # Excluir trm_cotizacion
+                field_names.append(field.verbose_name or field.name)
+        return field_names
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        presentaciones = Presentacion.objects.all()
-        self.set_form_field_names(presentaciones)
-
         if form.is_valid():
-            self.save_cotizaciones(form)
-            return redirect('cotizacion_crear')
+            semana = int(form.cleaned_data['semana'])
+            trm_cotizacion = form.cleaned_data['trm_cotizacion']
+            self.save_cotizaciones(form, semana, trm_cotizacion)
+            messages.success(request, f'Se han actualizado los precios para la semana {semana} exitosamente.')
+            return redirect('cotizacion_etnico')
 
-        return render(request, self.template_name, {
-            'form': form,
-            'presentaciones': presentaciones
-        })
+        presentaciones_data = self.get_presentaciones_data(form)
+        return render(request, self.template_name, {'form': form, 'presentaciones_data': presentaciones_data})
 
-    def get_initial(self):
-        initial_data = {}
+    def get_initial(self, semana):
+        initial_data = {'trm_cotizacion': CotizacionEtnico.objects.filter(
+            semana=semana).first().trm_cotizacion if CotizacionEtnico.objects.filter(semana=semana).exists() else None}
+        cotizaciones_semana = CotizacionEtnico.objects.filter(semana=semana)
         for presentacion in Presentacion.objects.all():
-            try:
-                cotizacion = Cotizacion.objects.get(presentacion=presentacion, semana=self.semana_actual)
-                initial_data[f'precio_fob_{presentacion.id}'] = cotizacion.precio_fob
-                initial_data[f'comision_fob_{presentacion.id}'] = cotizacion.comision_fob
-                initial_data[f'precio_dxb_{presentacion.id}'] = cotizacion.precio_dxb
-                initial_data[f'comision_dxb_{presentacion.id}'] = cotizacion.comision_dxb
-            except Cotizacion.DoesNotExist:
-                pass
+            cotizacion = cotizaciones_semana.filter(presentacion=presentacion).first()
+            if cotizacion:
+                for field in CotizacionEtnico._meta.get_fields():
+                    if hasattr(field, 'max_digits'):  # Asumiendo que todos son DecimalFields
+                        field_name = f"{field.name}_{presentacion.id}"
+                        initial_data[field_name] = getattr(cotizacion, field.name, None)
         return initial_data
 
-    def set_form_field_names(self, presentaciones):
-        for presentacion in presentaciones:
-            presentacion.campo_precio_fob = f'precio_fob_{presentacion.id}'
-            presentacion.campo_comision_fob = f'comision_fob_{presentacion.id}'
-            presentacion.campo_precio_dxb = f'precio_dxb_{presentacion.id}'
-            presentacion.campo_comision_dxb = f'comision_dxb_{presentacion.id}'
-
-    def save_cotizaciones(self, form):
+    def get_presentaciones_data(self, form):
+        presentaciones_data = []
         for presentacion in Presentacion.objects.all():
-            cotizacion, created = Cotizacion.objects.get_or_create(
-                presentacion=presentacion,
-                semana=self.semana_actual
-            )
-            cotizacion.precio_fob = form.cleaned_data.get(f'precio_fob_{presentacion.id}')
-            cotizacion.comision_fob = form.cleaned_data.get(f'comision_fob_{presentacion.id}')
-            cotizacion.precio_dxb = form.cleaned_data.get(f'precio_dxb_{presentacion.id}')
-            cotizacion.comision_dxb = form.cleaned_data.get(f'comision_dxb_{presentacion.id}')
+            campos_presentacion = {}
+            for field in CotizacionEtnico._meta.get_fields():
+                if hasattr(field, 'max_digits') and field.name != 'trm_cotizacion':  # Excluir trm_cotizacion
+                    field_name = f"{field.name}_{presentacion.id}"
+                    campos_presentacion[field_name] = form[field_name]
+
+            presentaciones_data.append({
+                'objeto': presentacion,
+                'campos': campos_presentacion
+            })
+        return presentaciones_data
+
+    def save_cotizaciones(self, form, semana, trm_cotizacion):
+        for presentacion in Presentacion.objects.all():
+            cotizacion, _ = CotizacionEtnico.objects.get_or_create(presentacion=presentacion, semana=semana)
+            for field in CotizacionEtnico._meta.get_fields():
+                if hasattr(field, 'max_digits'):
+                    field_name = f"{field.name}_{presentacion.id}"
+                    setattr(cotizacion, field.name, form.cleaned_data.get(field_name))
+            cotizacion.trm_cotizacion = trm_cotizacion
             cotizacion.save()
 
+
+# --------------------------------- Cotizador Fieldex ------------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url=reverse_lazy('home')), name='dispatch')
+class ActualizarCotizacionesFieldexView(View):
+    form_class = CotizacionForm
+    template_name = 'cotizacion_fieldex.html'
+
+    def get(self, request, *args, **kwargs):
+        semana = int(request.GET.get('semana', datetime.now().isocalendar()[1]))
+        form = self.form_class(initial=self.get_initial(semana))
+        presentaciones_data = self.get_presentaciones_data(form)
+        field_names = self.get_field_names()
+        return render(request, self.template_name, {
+            'form': form,
+            'presentaciones_data': presentaciones_data,
+            'field_names': field_names  # Agregar esto
+        })
+
+    def get_field_names(self):
+        field_names = []
+        for field in CotizacionFieldex._meta.get_fields():
+            if hasattr(field, 'max_digits') and field.name != 'trm_cotizacion':  # Excluir trm_cotizacion
+                field_names.append(field.verbose_name or field.name)
+        return field_names
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            semana = int(form.cleaned_data['semana'])
+            trm_cotizacion = form.cleaned_data['trm_cotizacion']
+            self.save_cotizaciones(form, semana, trm_cotizacion)
+            messages.success(request, f'Se han actualizado los precios para la semana {semana} exitosamente.')
+            return redirect('cotizacion_fieldex')
+
+        presentaciones_data = self.get_presentaciones_data(form)
+        return render(request, self.template_name, {'form': form, 'presentaciones_data': presentaciones_data})
+
+    def get_initial(self, semana):
+        initial_data = {'trm_cotizacion': CotizacionFieldex.objects.filter(
+            semana=semana).first().trm_cotizacion if CotizacionFieldex.objects.filter(semana=semana).exists() else None}
+        cotizaciones_semana = CotizacionFieldex.objects.filter(semana=semana)
+        for presentacion in Presentacion.objects.all():
+            cotizacion = cotizaciones_semana.filter(presentacion=presentacion).first()
+            if cotizacion:
+                for field in CotizacionFieldex._meta.get_fields():
+                    if hasattr(field, 'max_digits'):  # Asumiendo que todos son DecimalFields
+                        field_name = f"{field.name}_{presentacion.id}"
+                        initial_data[field_name] = getattr(cotizacion, field.name, None)
+        return initial_data
+
+    def get_presentaciones_data(self, form):
+        presentaciones_data = []
+        for presentacion in Presentacion.objects.all():
+            campos_presentacion = {}
+            for field in CotizacionFieldex._meta.get_fields():
+                if hasattr(field, 'max_digits') and field.name != 'trm_cotizacion':  # Excluir trm_cotizacion
+                    field_name = f"{field.name}_{presentacion.id}"
+                    campos_presentacion[field_name] = form[field_name]
+
+            presentaciones_data.append({
+                'objeto': presentacion,
+                'campos': campos_presentacion
+            })
+        return presentaciones_data
+
+    def save_cotizaciones(self, form, semana, trm_cotizacion):
+        for presentacion in Presentacion.objects.all():
+            cotizacion, _ = CotizacionFieldex.objects.get_or_create(presentacion=presentacion, semana=semana)
+            for field in CotizacionFieldex._meta.get_fields():
+                if hasattr(field, 'max_digits'):
+                    field_name = f"{field.name}_{presentacion.id}"
+                    setattr(cotizacion, field.name, form.cleaned_data.get(field_name))
+            cotizacion.trm_cotizacion = trm_cotizacion
+            cotizacion.save()
+
+
+# --------------------------------- Cotizador Juan Matas ------------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url=reverse_lazy('home')), name='dispatch')
+class ActualizarCotizacionesJuanView(View):
+    form_class = CotizacionForm
+    template_name = 'cotizacion_juan.html'
+
+    def get(self, request, *args, **kwargs):
+        semana = int(request.GET.get('semana', datetime.now().isocalendar()[1]))
+        form = self.form_class(initial=self.get_initial(semana))
+        presentaciones_data = self.get_presentaciones_data(form)
+        field_names = self.get_field_names()
+        return render(request, self.template_name, {
+            'form': form,
+            'presentaciones_data': presentaciones_data,
+            'field_names': field_names  # Agregar esto
+        })
+
+    def get_field_names(self):
+        field_names = []
+        for field in CotizacionJuan._meta.get_fields():
+            if hasattr(field, 'max_digits') and field.name != 'trm_cotizacion':  # Excluir trm_cotizacion
+                field_names.append(field.verbose_name or field.name)
+        return field_names
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            semana = int(form.cleaned_data['semana'])
+            trm_cotizacion = form.cleaned_data['trm_cotizacion']
+            self.save_cotizaciones(form, semana, trm_cotizacion)
+            messages.success(request, f'Se han actualizado los precios para la semana {semana} exitosamente.')
+            return redirect('cotizacion_juan')
+
+        presentaciones_data = self.get_presentaciones_data(form)
+        return render(request, self.template_name, {'form': form, 'presentaciones_data': presentaciones_data})
+
+    def get_initial(self, semana):
+        initial_data = {'trm_cotizacion': CotizacionJuan.objects.filter(
+            semana=semana).first().trm_cotizacion if CotizacionJuan.objects.filter(semana=semana).exists() else None}
+        cotizaciones_semana = CotizacionJuan.objects.filter(semana=semana)
+        for presentacion in Presentacion.objects.all():
+            cotizacion = cotizaciones_semana.filter(presentacion=presentacion).first()
+            if cotizacion:
+                for field in CotizacionJuan._meta.get_fields():
+                    if hasattr(field, 'max_digits'):  # Asumiendo que todos son DecimalFields
+                        field_name = f"{field.name}_{presentacion.id}"
+                        initial_data[field_name] = getattr(cotizacion, field.name, None)
+        return initial_data
+
+    def get_presentaciones_data(self, form):
+        presentaciones_data = []
+        for presentacion in Presentacion.objects.all():
+            campos_presentacion = {}
+            for field in CotizacionJuan._meta.get_fields():
+                if hasattr(field, 'max_digits') and field.name != 'trm_cotizacion':  # Excluir trm_cotizacion
+                    field_name = f"{field.name}_{presentacion.id}"
+                    campos_presentacion[field_name] = form[field_name]
+
+            presentaciones_data.append({
+                'objeto': presentacion,
+                'campos': campos_presentacion
+            })
+        return presentaciones_data
+
+    def save_cotizaciones(self, form, semana, trm_cotizacion):
+        for presentacion in Presentacion.objects.all():
+            cotizacion, _ = CotizacionJuan.objects.get_or_create(presentacion=presentacion, semana=semana)
+            for field in CotizacionJuan._meta.get_fields():
+                if hasattr(field, 'max_digits'):
+                    field_name = f"{field.name}_{presentacion.id}"
+                    setattr(cotizacion, field.name, form.cleaned_data.get(field_name))
+            cotizacion.trm_cotizacion = trm_cotizacion
+            cotizacion.save()

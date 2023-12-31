@@ -15,13 +15,14 @@ from .models import Bodega, Item, Movimiento, Inventario
 from .tables import MovimientoTable, ItemTable, InventarioTable
 
 
-# Create your views here.
 # Funciones para validar el Grupo del usuario y si puede acceder a la vista:
 
 def es_miembro_del_grupo(nombre_grupo):
     def es_miembro(user):
         return user.groups.filter(name=nombre_grupo).exists()
+
     return es_miembro
+
 
 # -------------------------------------- Vistas Para Etnico: ---------------------------------------------------------
 
@@ -467,6 +468,3 @@ class InventarioBodegaJuanListView(SingleTableView):
         context = super().get_context_data(**kwargs)
         context['item_busqueda'] = self.form_class(self.request.GET)
         return context
-
-
-# ------------------------- /////// Tabla totalizada por bodega //////////// ------------------------------------------

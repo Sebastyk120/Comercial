@@ -14,4 +14,8 @@ urlpatterns = [
     path('pedido_list_fieldex', views.PedidoFieldexListView.as_view(), name='pedido_list_fieldex'),
     path('pedido_list_juan', views.PedidoJuanListView.as_view(), name='pedido_list_juan'),
     path('pedido_editar_exportador', views.PedidoExportadorUpdateView.as_view(), name='pedido_editar_exportador'),
+    path('cartera_list_heavens', views.CarteraHeavensListView.as_view(), name='cartera_list_heavens'),
+    path('cartera_list_etnico', views.CarteraEtnicoListView.as_view(), name='cartera_list_etnico'),
+    path('cartera_list_fieldex', views.CarteraFieldexListView.as_view(), name='cartera_list_fieldex'),
+    path('cartera_list_juan', views.CarteraJuanListView.as_view(), name='cartera_list_juan'),
 ]

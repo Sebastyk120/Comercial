@@ -23,7 +23,7 @@ h1 {
 .table {
     border-collapse: collapse;
     margin: 25px 0;
-    font-size: 0.9em;
+    font-size: 0.7em;
     font-family: 'Montserrat', sans-serif;
     width: 100%;
     min-width: 400px;/* Hace que la tabla ocupe el 100% del ancho disponible */

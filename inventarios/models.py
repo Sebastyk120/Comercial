@@ -1,12 +1,10 @@
 import logging
-
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
 from django.db import models, transaction
 from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
-
 from comercial.models import Referencias, Exportador
 
 
@@ -114,10 +112,9 @@ def actualizar_inventario_al_guardar(sender, instance, **kwargs):
                 # Manejo de error y envío de alerta
                 logging.error(f"Condición no manejada para la bodega: {instance.bodega.nombre}")
                 # messages.error(request, f"Condición no manejada para la bodega: {instance.bodega.nombre}")
-                # Nota: 'request' no está disponible aquí, considera otra forma de informar al usuario
     except Exception as e:
         logging.error(f"Error al actualizar el inventario: {e}")
-        # Nota: Considera cómo informar al usuario sobre este error
+        # informar al usuario
 
 
 @receiver(post_delete, sender=Item)

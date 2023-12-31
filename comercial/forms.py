@@ -23,6 +23,7 @@ class PedidoForm(forms.ModelForm):
         widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     )
     fecha_pago_comision = forms.DateField(
+        required=False,
         widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     )
 
@@ -53,6 +54,7 @@ class EditarPedidoForm(forms.ModelForm):
         widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     )
     fecha_pago_comision = forms.DateField(
+        required=False,
         widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     )
 

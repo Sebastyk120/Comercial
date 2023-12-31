@@ -58,7 +58,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
 ]
 
 ROOT_URLCONF = 'Django_heavens.urls'
@@ -122,11 +121,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
-
-LANGUAGE_CODE = 'es-ES'
-
+FORMAT_MODULE_PATH = ['Django_heavens.formats']
+LANGUAGE_CODE = 'es-es'
 TIME_ZONE = 'America/Bogota'
 USE_L10N = True
+USE_THOUSAND_SEPARATOR = True
 USE_I18N = True
 USE_TZ = True
 
@@ -134,7 +133,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-LOGIN_URL = 'autenticacion/login'
+LOGIN_URL = 'login'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -144,3 +143,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 
 CRISPY_TEMPLATE_PACK = "bootstrap5"
+
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000

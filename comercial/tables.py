@@ -53,3 +53,17 @@ class PedidoExportadorTable(tables.Table):
     class Meta:
         model = Pedido
         template_name = "django_tables2/bootstrap5-responsive.html"
+
+
+class CarteraPedidoTable(tables.Table):
+    fecha_entrega_personalizada = tables.DateColumn(
+        accessor='fecha_entrega',
+        verbose_name='Fecha Factura'
+    )
+
+    class Meta:
+        model = Pedido
+        template_name = "django_tables2/bootstrap5-responsive.html"
+        order_by = ('cliente__nombre',)
+        fields = ("cliente", "numero_factura", "fecha_entrega_personalizada", "dias_de_vencimiento",
+                  "valor_total_factura_usd", "valor_pagado_cliente_usd", "fecha_pago", "estado_factura")
