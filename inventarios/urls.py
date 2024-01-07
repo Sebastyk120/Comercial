@@ -14,4 +14,9 @@ urlpatterns = [
     path('recibo_items_create_juan', views.ItemCreateViewJuan.as_view(), name='reciboitemscreatejuan'),
     path('recibo_items_update', views.ItemUpdateView.as_view(), name='reciboitemsupdate'),
     path('recibo_items_delete', views.ItemDeleteView.as_view(), name='reciboitemsdelete'),
+    path('exportar_inventario_general', views.exportar_inventario_excel, name='exportar_inventario_general'),
+    path('exportar_inventario_etnico', views.exportar_inventario_etnico, name='exportar_inventario_etnico'),
+    path('exportar_inventario_fieldex', views.exportar_inventario_fieldex, name='exportar_inventario_fieldex'),
+    path('exportar_inventario_juan', views.exportar_inventario_juan, name='exportar_inventario_juan'),
+
 ]

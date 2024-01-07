@@ -1,9 +1,11 @@
 import math
 from datetime import datetime, timedelta
+from importlib import import_module
+
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
-from django.db.models.signals import post_save, post_delete
+from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from simple_history.models import HistoricalRecords
 
@@ -288,27 +290,49 @@ class DetallePedido(models.Model):
         pedido.save()
 
     class Meta:
-        ordering = ['pedido']
+        ordering = ['fruta']
 
     def __str__(self):
         return f"Detalle Pedido - {self.pedido} - {self.fruta} - {self.presentacion}"
 
 
+@receiver(pre_save, sender=DetallePedido)
+def almacenar_referencia_antes_de_guardar(sender, instance, **kwargs):
+    if instance.pk:
+        instance._referencia_previa = sender.objects.get(pk=instance.pk).referencia
+    else:
+        instance._referencia_previa = None
+
+
 @receiver(post_save, sender=DetallePedido)
-def actualizar_inventario_al_guardar(sender, instance, **kwargs):
+def actualizar_inventario_despues_de_guardar(sender, instance, **kwargs):
     from importlib import import_module
     Inventario = import_module('inventarios.models').Inventario
-    nuevo_inventario, created = Inventario.objects.get_or_create(
-        numero_item=instance.referencia,
-        defaults={'ventas': 0, 'ventas_contenedor': 0}
+
+    referencia_antigua = getattr(instance, '_referencia_previa', None)
+    referencia_nueva = instance.referencia
+
+    if referencia_antigua and referencia_antigua != referencia_nueva:
+        # Actualizar inventario para la referencia antigua
+        actualizar_inventario(referencia_antigua)
+
+    # Actualizar inventario para la referencia nueva
+    actualizar_inventario(referencia_nueva)
+
+
+def actualizar_inventario(referencia):
+    Inventario = import_module('inventarios.models').Inventario
+    inventario, created = Inventario.objects.get_or_create(
+        numero_item=referencia,
+        defaults={'ventas': 0, 'venta_contenedor': 0}
     )
-    nuevo_inventario.ventas = DetallePedido.objects.filter(
-        referencia=instance.referencia
+    inventario.ventas = DetallePedido.objects.filter(
+        referencia=referencia
     ).aggregate(Sum('cajas_enviadas'))['cajas_enviadas__sum'] or 0
-    nuevo_inventario.venta_contenedor = DetallePedido.objects.filter(
-        referencia=instance.referencia
+    inventario.venta_contenedor = DetallePedido.objects.filter(
+        referencia=referencia
     ).aggregate(Sum('cantidad_contenedores'))['cantidad_contenedores__sum'] or 0
-    nuevo_inventario.save()
+    inventario.save()
 
 
 @receiver(post_delete, sender=DetallePedido)

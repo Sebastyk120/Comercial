@@ -112,6 +112,12 @@ label {
     top: 110px;
 }
 
+[name="exportar"] {
+    position: absolute;
+    left: 50%;
+    top: 110px;
+}
+
 
 #add {
     position: fixed;

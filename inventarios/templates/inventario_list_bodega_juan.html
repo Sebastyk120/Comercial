@@ -23,6 +23,9 @@
             </div>
         </form>
     </div>
+    <a class="nav-link" href="{% url 'exportar_inventario_juan' %}" name="exportar">
+                            <button class="btn btn-success me-md-5 btn-sm" id="export"><i class="bi bi-table"></i> Inventario xlsx</button>
+                        </a>
     <div class="container">
         {% render_table table %}
     </div>

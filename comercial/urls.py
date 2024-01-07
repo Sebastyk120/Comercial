@@ -18,4 +18,8 @@ urlpatterns = [
     path('cartera_list_etnico', views.CarteraEtnicoListView.as_view(), name='cartera_list_etnico'),
     path('cartera_list_fieldex', views.CarteraFieldexListView.as_view(), name='cartera_list_fieldex'),
     path('cartera_list_juan', views.CarteraJuanListView.as_view(), name='cartera_list_juan'),
+    path('exportar_cartera_clientes', views.export_cartera_clientes, name='exportar_cartera_clientes'),
+    path('exportar_cartera_etnico', views.export_cartera_etnico, name='exportar_cartera_etnico'),
+    path('exportar_cartera_fieldex', views.export_cartera_fieldex, name='exportar_cartera_fieldex'),
+    path('exportar_cartera_juan', views.export_cartera_juan, name='exportar_cartera_juan'),
 ]

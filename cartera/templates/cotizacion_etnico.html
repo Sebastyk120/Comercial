@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="icon" href="{% static 'img/favicon.png' %}">
         <link rel="stylesheet" href="{% static 'css/cotizacion_list.css' %}"/>
-        <title>Cotizaciones Fieldex</title>
+        <title>Cotizaciones Etnico</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
               integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
               crossorigin="anonymous">
@@ -16,7 +16,7 @@
     </head>
     <body>
     <h1 class="text-center my-4">Cotizador Etnico</h1>
-        <!-- Formulario para seleccionar la semana -->
+    <!-- Formulario para seleccionar la semana -->
         <form method="get" action="" class="mb-6">
             <div class="form-group">
                 <label for="id_semana">Obtener datos de la semana:</label>
@@ -37,35 +37,34 @@
                 <label for="id_trm_cotizacion">TRM Monetización $:</label>
                 {{ form.trm_cotizacion }}
             </div>
-
-            <!-- Tabla de cotizaciones -->
-            <table class="table table-bordered full-width-table">
-                <thead class="thead-dark">
-                <tr>
-                    <th>Presentación</th>
-                    {% for field_name in field_names %}
-                        {% if field_name != "TRM Cotización" %}
-                            <th>{{ field_name }}</th>
-                        {% endif %}
-                    {% endfor %}
-                </tr>
-                </thead>
-                <tbody>
-                {% for presentacion in presentaciones_data %}
-                    <tr>
-                        <td>{{ presentacion.objeto.nombre }}</td>
-                        {% for field_key, field_value in presentacion.campos.items %}
-                            {% if field_key != "trm_cotizacion" %}  <!-- Excluir el campo trm_cotizacion -->
-                                <td>{{ field_value }}</td>
-                            {% endif %}
-                        {% endfor %}
-                    </tr>
+    <!-- Tabla de cotizaciones -->
+    <table class="table table-bordered full-width-table">
+        <thead class="thead-dark">
+        <tr>
+            <th>Presentación</th>
+            {% for field_name in field_names %}
+                {% if field_name != "TRM Cotización" %}
+                    <th>{{ field_name }}</th>
+                {% endif %}
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for presentacion in presentaciones_data %}
+            <tr>
+                <td>{{ presentacion.objeto.nombre }}</td>
+                {% for field_key, field_value in presentacion.campos.items %}
+                    {% if field_key != "trm_cotizacion" %}  <!-- Excluir el campo trm_cotizacion -->
+                        <td>{{ field_value }}</td>
+                    {% endif %}
                 {% endfor %}
-                </tbody>
-            </table>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
-            <input type="submit" value="Actualizar Cot" class="btn btn-success" name="update">
-        </form>
+    <input type="submit" value="Actualizar Cot" class="btn btn-success" name="update">
+    </form>
     <script>
         window.onload = function () {
             // Función para obtener el valor del parámetro de la URL

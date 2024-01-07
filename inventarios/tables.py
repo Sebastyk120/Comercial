@@ -35,9 +35,14 @@ class MovimientoTable(tables.Table):
 
 class InventarioTable(tables.Table):
     numero_item = tables.Column(verbose_name="Referencia")
+    stock_actual = tables.Column(empty_values=(), orderable=False, verbose_name="Stock Actual")
 
     class Meta:
         model = Inventario
         template_name = 'django_tables2/bootstrap5-responsive.html'
         fields = ("numero_item", "compras_efectivas", "saldos_iniciales", "salidas",
                   "traslado_propio", "traslado_remisionado", "ventas", "venta_contenedor")
+
+    def render_stock_actual(self, record):
+        return (record.compras_efectivas + record.saldos_iniciales) - (
+                    record.salidas + record.traslado_propio + record.traslado_remisionado + record.ventas)

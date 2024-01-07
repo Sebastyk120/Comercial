@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import DateInput
 
-from .models import Pedido, Cliente, DetallePedido
+from .models import Pedido, Cliente, DetallePedido, Referencias
 
 
 class SearchForm(forms.Form):
@@ -74,6 +74,10 @@ class EditarPedidoForm(forms.ModelForm):
                   'numero_factura', 'nota_credito_no', 'motivo_nota_credito', 'documento_cobro_comision',
                   'fecha_pago_comision']
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['exportadora'].disabled = True
+
 
 # ------------------------------------ Formulario Eliminar Pedido ---------------------------------------------
 class EliminarPedidoForm(forms.ModelForm):
@@ -83,15 +87,11 @@ class EliminarPedidoForm(forms.ModelForm):
     fecha_entrega = forms.DateField(
         widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
     )
-    fecha_pago_comision = forms.DateField(
-        widget=DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-    )
 
     class Meta:
         model = Pedido
         fields = ['cliente', 'fecha_solicitud', 'fecha_entrega', 'exportadora', 'awb',
-                  'numero_factura', 'nota_credito_no', 'motivo_nota_credito', 'documento_cobro_comision',
-                  'fecha_pago_comision']
+                  'numero_factura']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -101,10 +101,6 @@ class EliminarPedidoForm(forms.ModelForm):
         self.fields['exportadora'].disabled = True
         self.fields['awb'].disabled = True
         self.fields['numero_factura'].disabled = True
-        self.fields['nota_credito_no'].disabled = True
-        self.fields['motivo_nota_credito'].disabled = True
-        self.fields['documento_cobro_comision'].disabled = True
-        self.fields['fecha_pago_comision'].disabled = True
 
 
 # ------------------------------------ Formulario Crear o editar Detalle Pedido ---------------------------------------
@@ -115,8 +111,19 @@ class DetallePedidoForm(forms.ModelForm):
                   'tipo_caja', 'referencia', 'lleva_contenedor', 'tarifa_comision',
                   'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision']
 
+    def __init__(self, *args, **kwargs):
+        pedido_id = kwargs.pop('pedido_id', None)
+        super(DetallePedidoForm, self).__init__(*args, **kwargs)
+        self.fields['pedido'].disabled = True
 
-# ------------------------------------ Formulario Eliminar Pedido ---------------------------------------------
+        if pedido_id:
+            pedido = Pedido.objects.get(id=pedido_id)
+            self.fields['referencia'].queryset = Referencias.objects.filter(exportador=pedido.exportadora)
+
+
+# -------------------------- Formulario Eliminar  Detalle  De Pedido ---------------------------------------------
+
+
 class EliminarDetallePedidoForm(forms.ModelForm):
     class Meta:
         model = DetallePedido
@@ -138,6 +145,21 @@ class EliminarDetallePedidoForm(forms.ModelForm):
         self.fields['valor_x_caja_usd'].disabled = True
         self.fields['no_cajas_nc'].disabled = True
         self.fields['afecta_comision'].disabled = True
+
+
+# -------------------------- Formulario Editar  Detalle  De Pedido ---------------------------------------------
+
+class EditarDetallePedidoForm(forms.ModelForm):
+    class Meta:
+        model = DetallePedido
+        fields = ['pedido', 'fruta', 'presentacion', 'cajas_solicitadas', 'cajas_enviadas',
+                  'tipo_caja', 'referencia', 'lleva_contenedor', 'tarifa_comision',
+                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pedido'].disabled = True
+        self.fields['referencia'].disabled = True
 
 
 class EditarPedidoExportadorForm(forms.ModelForm):

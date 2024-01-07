@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
-from django.http import JsonResponse, request
+from django.http import JsonResponse, request, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -11,9 +11,14 @@ from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
 from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm, DetallePedidoForm, \
-    EliminarDetallePedidoForm, EditarPedidoExportadorForm
+    EliminarDetallePedidoForm, EditarPedidoExportadorForm, EditarDetallePedidoForm
 from .models import Pedido, DetallePedido
+from .resources import obtener_datos_con_totales, crear_archivo_excel, obtener_datos_con_totales_etnico, \
+    obtener_datos_con_totales_fieldex, obtener_datos_con_totales_juan
 from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable, CarteraPedidoTable
+
+
+# from .resources import CarteraPedidoResource
 
 
 # -----------Funcion para permisos por grupo ---------------------
@@ -22,6 +27,86 @@ def es_miembro_del_grupo(nombre_grupo):
         return user.groups.filter(name=nombre_grupo).exists()
 
     return es_miembro
+
+
+# -------------------------- Funciones De Exportacion Cartera General--------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
+def export_cartera_clientes(request):
+    # Obtener los datos y los totales
+    pedidos, totales = obtener_datos_con_totales()
+
+    # Crear el archivo Excel
+    ruta_archivo = 'estado_cuenta_clientes.xlsx'
+    crear_archivo_excel(pedidos, totales, ruta_archivo)
+
+    # Leer el archivo y preparar la respuesta
+    with open(ruta_archivo, 'rb') as archivo_excel:
+        response = HttpResponse(archivo_excel.read(),
+                                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="estado_cuenta_clientes.xlsx"'
+
+    return response
+
+
+# -------------------------- Exportacion Cartera Etnico -------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Etnico'), login_url='home'))
+def export_cartera_etnico(request):
+    # Obtener los datos y los totales
+    pedidos, totales = obtener_datos_con_totales_etnico()
+
+    # Crear el archivo Excel
+    ruta_archivo = 'etnico_cuenta_clientes.xlsx'
+    crear_archivo_excel(pedidos, totales, ruta_archivo)
+
+    # Leer el archivo y preparar la respuesta
+    with open(ruta_archivo, 'rb') as archivo_excel:
+        response = HttpResponse(archivo_excel.read(),
+                                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="etnico_cuenta_clientes.xlsx"'
+
+    return response
+
+
+# -------------------------- Exportacion Cartera Fieldex -------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url='home'))
+def export_cartera_fieldex(request):
+    # Obtener los datos y los totales
+    pedidos, totales = obtener_datos_con_totales_fieldex()
+
+    # Crear el archivo Excel
+    ruta_archivo = 'fieldex_cuenta_clientes.xlsx'
+    crear_archivo_excel(pedidos, totales, ruta_archivo)
+
+    # Leer el archivo y preparar la respuesta
+    with open(ruta_archivo, 'rb') as archivo_excel:
+        response = HttpResponse(archivo_excel.read(),
+                                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="fieldex_cuenta_clientes.xlsx"'
+
+    return response
+
+
+# -------------------------- Exportacion Cartera Juan Matas -------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url='home'))
+def export_cartera_juan(request):
+    # Obtener los datos y los totales
+    pedidos, totales = obtener_datos_con_totales_juan()
+
+    # Crear el archivo Excel
+    ruta_archivo = 'juan_cuenta_clientes.xlsx'
+    crear_archivo_excel(pedidos, totales, ruta_archivo)
+
+    # Leer el archivo y preparar la respuesta
+    with open(ruta_archivo, 'rb') as archivo_excel:
+        response = HttpResponse(archivo_excel.read(),
+                                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename="juan_cuenta_clientes.xlsx"'
+
+    return response
 
 
 # -------------------------------- Tabla De Pedidos General  ----------------------------------------------------
@@ -376,6 +461,11 @@ class DetallePedidoCreateView(CreateView):
             initial['pedido'] = pedido_id
         return initial
 
+    def get_form_kwargs(self):
+        kwargs = super(DetallePedidoCreateView, self).get_form_kwargs()
+        kwargs['pedido_id'] = self.kwargs.get('pedido_id')
+        return kwargs
+
     @transaction.atomic
     def form_valid(self, form):
         pedido_id = self.kwargs.get('pedido_id')
@@ -402,7 +492,7 @@ class DetallePedidoCreateView(CreateView):
 @method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
 class DetallePedidoUpdateView(UpdateView):
     model = DetallePedido
-    form_class = DetallePedidoForm
+    form_class = EditarDetallePedidoForm
     template_name = 'detalle_pedido_editar.html'
     success_url = '/detalle_pedido_editar/'
 
@@ -426,11 +516,6 @@ class DetallePedidoUpdateView(UpdateView):
             return JsonResponse({'form': form_html})
         else:
             return super().get(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['instance'] = self.object
-        return kwargs
 
     def post(self, request, *args, **kwargs):
         self.object = self.get_object()

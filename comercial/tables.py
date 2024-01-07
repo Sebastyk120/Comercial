@@ -64,6 +64,6 @@ class CarteraPedidoTable(tables.Table):
     class Meta:
         model = Pedido
         template_name = "django_tables2/bootstrap5-responsive.html"
-        order_by = ('cliente__nombre',)
-        fields = ("cliente", "numero_factura", "fecha_entrega_personalizada", "dias_de_vencimiento",
-                  "valor_total_factura_usd", "valor_pagado_cliente_usd", "fecha_pago", "estado_factura")
+        order_by = ('cliente',)
+        fields = ("cliente", "exportadora", "numero_factura", "fecha_entrega_personalizada", "dias_de_vencimiento",
+                  "valor_total_factura_usd", "valor_pagado_cliente_usd", "comision_bancaria_usd","fecha_pago", "estado_factura")

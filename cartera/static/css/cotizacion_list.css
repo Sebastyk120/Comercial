@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
 
 body {
-    background-image: url(../img/fondojornadas.png);
+    background-image: url(../img/black.png);
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
@@ -121,4 +121,30 @@ a:visited {
     position: absolute;
     left: 90%;
     top: 145px;
+}
+
+.formulario-en-linea {
+    display: flex; /* Activando Flexbox */
+    flex-wrap: wrap; /* Permitiendo que los elementos se envuelvan si no caben en una línea */
+    justify-content: center; /* Centrando los elementos horizontalmente */
+    align-items: center; /* Centrando los elementos verticalmente */
+}
+
+.formulario-en-linea .form-group {
+    display: flex; /* Activando Flexbox para cada grupo de formulario */
+    flex-direction: row; /* Alineando los elementos horizontalmente */
+    align-items: center; /* Centrando los elementos verticalmente */
+    margin-right: 10px; /* Espacio entre los grupos de formulario */
+}
+
+/* Estilo para labels, inputs y botones para asegurar la uniformidad */
+.formulario-en-linea label, .formulario-en-linea .form-control, .formulario-en-linea input[type="submit"] {
+    margin: 5px; /* Espacio alrededor de cada elemento */
+    width: 150px; /* Ancho fijo para cada elemento */
+    text-align: center; /* Alineando el texto al centro */
+}
+
+/* Ajuste adicional para los inputs para que coincidan en altura con los botones, si es necesario */
+.formulario-en-linea .form-control {
+    height: 38px; /* Altura para coincidir con la de los botones, ajustar según sea necesario */
 }

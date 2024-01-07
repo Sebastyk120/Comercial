@@ -50,6 +50,12 @@ input[name="item_busqueda"]:focus {
 
 }
 
+[name="exportar"] {
+    position: absolute;
+    left: 50%;
+    top: 110px;
+}
+
 /*          Custom Table Boostrap       */
 
 .table {

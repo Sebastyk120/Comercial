@@ -21,8 +21,9 @@ def login1(request):
         user = authenticate(
             request, username=request.POST['username'], password=request.POST['password'])
         if user is None:
+            messages.error(request, f'Usuario o contraseña incorrecto')
             return render(request, 'login.html',
-                          {'form': AuthenticationForm, 'error': 'Usuario o contraseña incorrecto'})
+                          {'form': AuthenticationForm})
         else:
             login(request, user)
             return redirect('home')

@@ -1,7 +1,8 @@
+import io
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -9,6 +10,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
+from openpyxl.workbook import Workbook
 from comercial.models import Referencias
 from .forms import ItemForm, SearchForm, EditarItemForm, EliminarItemForm
 from .models import Bodega, Item, Movimiento, Inventario
@@ -25,6 +27,197 @@ def es_miembro_del_grupo(nombre_grupo):
 
 
 # -------------------------------------- Vistas Para Etnico: ---------------------------------------------------------
+
+# ------------------ Exportacion de inventarios  Excel General --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
+def exportar_inventario_excel(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+
+    # Define los títulos de las columnas
+    columns = ['Referencia', 'Exportador', 'Compras Efectivas', 'Saldos Iniciales', 'Salidas', 'Traslado Propio',
+               'Traslado Remisionado', 'Ventas', 'Venta Contenedor', 'Stock Actual']
+    for col_num, column_title in enumerate(columns, start=1):
+        worksheet.cell(row=1, column=col_num, value=column_title)
+
+    # Obtener los datos de tu modelo
+    queryset = Inventario.objects.all()
+
+    # Agregar datos al libro de trabajo
+    for row_num, item in enumerate(queryset, start=2):
+        row = [
+            item.numero_item.nombre,
+            item.numero_item.exportador.nombre,
+            item.compras_efectivas,
+            item.saldos_iniciales,
+            item.salidas,
+            item.traslado_propio,
+            item.traslado_remisionado,
+            item.ventas,
+            item.venta_contenedor,
+            # Aquí agregas el cálculo del stock actual
+            (item.compras_efectivas + item.saldos_iniciales) - (
+                    item.salidas + item.traslado_propio + item.traslado_remisionado + item.ventas)
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="inventario_general.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de inventarios  Excel Etnico --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Etnico'), login_url='home'))
+def exportar_inventario_etnico(request):
+    # Libro De Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+
+    # Encabezados y Columnas
+    columns = ['Referencia', 'Exportador', 'Compras Efectivas', 'Saldos Iniciales', 'Salidas', 'Traslado Propio',
+               'Traslado Remisionado', 'Ventas', 'Venta Contenedor', 'Stock Actual']
+    for col_num, column_title in enumerate(columns, start=1):
+        worksheet.cell(row=1, column=col_num, value=column_title)
+
+    # Filtrar datos Etnico
+    queryset = Inventario.objects.filter(numero_item__exportador__nombre='Etnico')
+
+    # Filas para Etnico
+    for row_num, item in enumerate(queryset, start=2):
+        row = [
+            item.numero_item.nombre,
+            item.numero_item.exportador.nombre,
+            item.compras_efectivas,
+            item.saldos_iniciales,
+            item.salidas,
+            item.traslado_propio,
+            item.traslado_remisionado,
+            item.ventas,
+            item.venta_contenedor,
+            # Calculo Stock Actual
+            (item.compras_efectivas + item.saldos_iniciales) - (
+                    item.salidas + item.traslado_propio + item.traslado_remisionado + item.ventas)
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="inventario_etnico.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de inventarios  Excel Fieldex --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url='home'))
+def exportar_inventario_fieldex(request):
+    # Libro De Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+
+    # Encabezados y Columnas
+    columns = ['Referencia', 'Exportador', 'Compras Efectivas', 'Saldos Iniciales', 'Salidas', 'Traslado Propio',
+               'Traslado Remisionado', 'Ventas', 'Venta Contenedor', 'Stock Actual']
+    for col_num, column_title in enumerate(columns, start=1):
+        worksheet.cell(row=1, column=col_num, value=column_title)
+
+    # Filtrar datos Fieldex
+    queryset = Inventario.objects.filter(numero_item__exportador__nombre='Fieldex')
+
+    # Filas para Etnico
+    for row_num, item in enumerate(queryset, start=2):
+        row = [
+            item.numero_item.nombre,
+            item.numero_item.exportador.nombre,
+            item.compras_efectivas,
+            item.saldos_iniciales,
+            item.salidas,
+            item.traslado_propio,
+            item.traslado_remisionado,
+            item.ventas,
+            item.venta_contenedor,
+            # Calculo Stock Actual
+            (item.compras_efectivas + item.saldos_iniciales) - (
+                    item.salidas + item.traslado_propio + item.traslado_remisionado + item.ventas)
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="inventario_fieldex.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de inventarios Excel Juan Matas-----------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url='home'))
+def exportar_inventario_juan(request):
+    # Libro De Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+
+    # Encabezados y Columnas
+    columns = ['Referencia', 'Exportador', 'Compras Efectivas', 'Saldos Iniciales', 'Salidas', 'Traslado Propio',
+               'Traslado Remisionado', 'Ventas', 'Venta Contenedor', 'Stock Actual']
+    for col_num, column_title in enumerate(columns, start=1):
+        worksheet.cell(row=1, column=col_num, value=column_title)
+
+    # Filtrar datos Juan Matas
+    queryset = Inventario.objects.filter(numero_item__exportador__nombre='Juan_Matas')
+
+    # Filas para Etnico
+    for row_num, item in enumerate(queryset, start=2):
+        row = [
+            item.numero_item.nombre,
+            item.numero_item.exportador.nombre,
+            item.compras_efectivas,
+            item.saldos_iniciales,
+            item.salidas,
+            item.traslado_propio,
+            item.traslado_remisionado,
+            item.ventas,
+            item.venta_contenedor,
+            # Calculo Stock Actual
+            (item.compras_efectivas + item.saldos_iniciales) - (
+                    item.salidas + item.traslado_propio + item.traslado_remisionado + item.ventas)
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="inventario_juan_matas.xlsx"'
+
+    return response
 
 
 # ------------------- Lista de Items Etnico  --------------------------------------------------------------------------

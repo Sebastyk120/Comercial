@@ -16,6 +16,7 @@
     <h1 class="align-center">Inventario Por Bodegas Etnico</h1>
     <body>
     <div class="mx-auto">
+
         <form method="get" class="d-flex">
             <input type="text" name="item_busqueda" placeholder="Buscar..." class="form-control"/>
             <div class="ml-auto">
@@ -23,6 +24,9 @@
             </div>
         </form>
     </div>
+    <a class="nav-link" href="{% url 'exportar_inventario_etnico' %}" name="exportar">
+                            <button class="btn btn-success me-md-5 btn-sm" id="export"><i class="bi bi-table"></i> Inventario xlsx</button>
+                        </a>
     <div class="container">
         {% render_table table %}
     </div>

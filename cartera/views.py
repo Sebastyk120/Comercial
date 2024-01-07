@@ -215,7 +215,7 @@ class ActualizarCotizacionesJuanView(View):
             cotizacion = cotizaciones_semana.filter(presentacion=presentacion).first()
             if cotizacion:
                 for field in CotizacionJuan._meta.get_fields():
-                    if hasattr(field, 'max_digits'):  # Asumiendo que todos son DecimalFields
+                    if hasattr(field, 'max_digits'):  # DecimalFields
                         field_name = f"{field.name}_{presentacion.id}"
                         initial_data[field_name] = getattr(cotizacion, field.name, None)
         return initial_data
@@ -248,7 +248,8 @@ class ActualizarCotizacionesJuanView(View):
 
 # //// -------------------- Comparador De Cotizaciones ---------------------------------------- /////
 
-
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
 def comparar_precios_view(request):
     form = ComparacionPreciosForm(request.GET or None)
     comparaciones = {}
