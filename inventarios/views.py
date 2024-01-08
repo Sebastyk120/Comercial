@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
+from openpyxl.styles import Font, PatternFill
 from openpyxl.workbook import Workbook
 from comercial.models import Referencias
 from .forms import ItemForm, SearchForm, EditarItemForm, EliminarItemForm
@@ -36,12 +37,17 @@ def exportar_inventario_excel(request):
     output = io.BytesIO()
     workbook = Workbook()
     worksheet = workbook.active
+    worksheet.title = 'Inventario General'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
 
-    # Define los títulos de las columnas
+    # Encabezados
     columns = ['Referencia', 'Exportador', 'Compras Efectivas', 'Saldos Iniciales', 'Salidas', 'Traslado Propio',
                'Traslado Remisionado', 'Ventas', 'Venta Contenedor', 'Stock Actual']
     for col_num, column_title in enumerate(columns, start=1):
-        worksheet.cell(row=1, column=col_num, value=column_title)
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
 
     # Obtener los datos de tu modelo
     queryset = Inventario.objects.all()
@@ -58,7 +64,7 @@ def exportar_inventario_excel(request):
             item.traslado_remisionado,
             item.ventas,
             item.venta_contenedor,
-            # Aquí agregas el cálculo del stock actual
+            # Calculo stock actual
             (item.compras_efectivas + item.saldos_iniciales) - (
                     item.salidas + item.traslado_propio + item.traslado_remisionado + item.ventas)
         ]
@@ -84,12 +90,17 @@ def exportar_inventario_etnico(request):
     output = io.BytesIO()
     workbook = Workbook()
     worksheet = workbook.active
+    worksheet.title = 'Inventario Etnico'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
 
-    # Encabezados y Columnas
+    # Encabezados
     columns = ['Referencia', 'Exportador', 'Compras Efectivas', 'Saldos Iniciales', 'Salidas', 'Traslado Propio',
                'Traslado Remisionado', 'Ventas', 'Venta Contenedor', 'Stock Actual']
     for col_num, column_title in enumerate(columns, start=1):
-        worksheet.cell(row=1, column=col_num, value=column_title)
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
 
     # Filtrar datos Etnico
     queryset = Inventario.objects.filter(numero_item__exportador__nombre='Etnico')
@@ -132,12 +143,17 @@ def exportar_inventario_fieldex(request):
     output = io.BytesIO()
     workbook = Workbook()
     worksheet = workbook.active
+    worksheet.title = 'Inventario Fieldex'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
 
-    # Encabezados y Columnas
+    # Encabezados
     columns = ['Referencia', 'Exportador', 'Compras Efectivas', 'Saldos Iniciales', 'Salidas', 'Traslado Propio',
                'Traslado Remisionado', 'Ventas', 'Venta Contenedor', 'Stock Actual']
     for col_num, column_title in enumerate(columns, start=1):
-        worksheet.cell(row=1, column=col_num, value=column_title)
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
 
     # Filtrar datos Fieldex
     queryset = Inventario.objects.filter(numero_item__exportador__nombre='Fieldex')
@@ -180,12 +196,17 @@ def exportar_inventario_juan(request):
     output = io.BytesIO()
     workbook = Workbook()
     worksheet = workbook.active
+    worksheet.title = 'Inventario Juan Matas'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
 
-    # Encabezados y Columnas
+    # Encabezados
     columns = ['Referencia', 'Exportador', 'Compras Efectivas', 'Saldos Iniciales', 'Salidas', 'Traslado Propio',
                'Traslado Remisionado', 'Ventas', 'Venta Contenedor', 'Stock Actual']
     for col_num, column_title in enumerate(columns, start=1):
-        worksheet.cell(row=1, column=col_num, value=column_title)
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
 
     # Filtrar datos Juan Matas
     queryset = Inventario.objects.filter(numero_item__exportador__nombre='Juan_Matas')

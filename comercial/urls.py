@@ -22,4 +22,9 @@ urlpatterns = [
     path('exportar_cartera_etnico', views.export_cartera_etnico, name='exportar_cartera_etnico'),
     path('exportar_cartera_fieldex', views.export_cartera_fieldex, name='exportar_cartera_fieldex'),
     path('exportar_cartera_juan', views.export_cartera_juan, name='exportar_cartera_juan'),
+    path('exportar_pedidos_excel', views.exportar_pedidos_excel, name='exportar_pedidos_excel'),
+    path('exportar_pedidos_etnico', views.exportar_pedidos_etnico, name='exportar_pedidos_etnico'),
+    path('exportar_pedidos_fieldex', views.exportar_pedidos_fieldex, name='exportar_pedidos_fieldex'),
+    path('exportar_pedidos_juan', views.exportar_pedidos_juan, name='exportar_pedidos_juan'),
+
 ]

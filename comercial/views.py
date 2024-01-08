@@ -1,3 +1,4 @@
+import io
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
@@ -10,6 +11,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
+from openpyxl.styles import Font, PatternFill
+from openpyxl.workbook import Workbook
 from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm, DetallePedidoForm, \
     EliminarDetallePedidoForm, EditarPedidoExportadorForm, EditarDetallePedidoForm
 from .models import Pedido, DetallePedido
@@ -27,6 +30,291 @@ def es_miembro_del_grupo(nombre_grupo):
         return user.groups.filter(name=nombre_grupo).exists()
 
     return es_miembro
+
+
+# ------------------ Exportacion de Pedidos Excel General --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
+def exportar_pedidos_excel(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Pedidos Totales General'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
+
+    # Encabezados
+    columns = ['No', 'Cliente', 'Fecha Solicitud', 'Fecha Entrega', 'Exportador', 'Dias Cartera', 'awb',
+               'Destino', 'Numero Factura', 'Total Cajas Enviadas', 'No NC', 'Motivo NC', 'Valor Total NC',
+               'Tasa Representatativa', 'Valor Pagado Cliente', 'Comision Bancaria USD', 'Fecha Pago',
+               'TRM Monetizacion', 'Estado Factura', 'Diferencia Pago', 'Dias Vencimiento', 'Valor Total Factura USD',
+               'Valor Comision USD', 'Valor Comision Pesos', 'Documento Cobro Comision', 'Fecha Pago Comision',
+               'Estado Comision']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    # Obtener los datos de tu modelo
+    queryset = Pedido.objects.all()
+
+    # Agregar datos al libro de trabajo
+    for row_num, pedido in enumerate(queryset, start=2):
+        row = [
+            pedido.pk,
+            pedido.cliente.nombre,
+            pedido.fecha_solicitud,
+            pedido.fecha_entrega,
+            pedido.exportadora.nombre,
+            pedido.dias_cartera,
+            pedido.awb,
+            pedido.destino,
+            pedido.numero_factura,
+            pedido.total_cajas_enviadas,
+            pedido.nota_credito_no,
+            pedido.motivo_nota_credito,
+            pedido.valor_total_nota_credito_usd,
+            pedido.tasa_representativa_usd_diaria,
+            pedido.valor_pagado_cliente_usd,
+            pedido.comision_bancaria_usd,
+            pedido.fecha_pago,
+            pedido.trm_monetizacion,
+            pedido.estado_factura,
+            pedido.diferencia_por_abono,
+            pedido.dias_de_vencimiento,
+            pedido.valor_total_factura_usd,
+            pedido.valor_total_comision_usd,
+            pedido.valor_comision_pesos,
+            pedido.documento_cobro_comision,
+            pedido.fecha_pago_comision,
+            pedido.estado_comision,
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="pedido_general.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de Pedidos Excel Etnico --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Etnico'), login_url='home'))
+def exportar_pedidos_etnico(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Pedidos Totales Etnico'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
+
+    # Encabezados
+    columns = ['Cliente', 'Fecha Solicitud', 'Fecha Entrega', 'Exportador', 'Dias Cartera', 'awb',
+               'Destino', 'Numero Factura', 'Total Cajas Enviadas', 'No NC', 'Motivo NC', 'Valor Total NC',
+               'Tasa Representatativa', 'Valor Pagado Cliente', 'Comision Bancaria USD', 'Fecha Pago',
+               'TRM Monetizacion', 'Estado Factura', 'Diferencia Pago', 'Dias Vencimiento', 'Valor Total Factura USD',
+               'Valor Comision USD', 'Valor Comision Pesos', 'Documento Cobro Comision', 'Fecha Pago Comision',
+               'Estado Comision']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    # Obtener los datos de tu modelo
+    queryset = Pedido.objects.filter(exportadora__nombre='Etnico')
+
+    # Agregar datos al libro de trabajo
+    for row_num, pedido in enumerate(queryset, start=2):
+        row = [
+            pedido.cliente.nombre,
+            pedido.fecha_solicitud,
+            pedido.fecha_entrega,
+            pedido.exportadora.nombre,
+            pedido.dias_cartera,
+            pedido.awb,
+            pedido.destino,
+            pedido.numero_factura,
+            pedido.total_cajas_enviadas,
+            pedido.nota_credito_no,
+            pedido.motivo_nota_credito,
+            pedido.valor_total_nota_credito_usd,
+            pedido.tasa_representativa_usd_diaria,
+            pedido.valor_pagado_cliente_usd,
+            pedido.comision_bancaria_usd,
+            pedido.fecha_pago,
+            pedido.trm_monetizacion,
+            pedido.estado_factura,
+            pedido.diferencia_por_abono,
+            pedido.dias_de_vencimiento,
+            pedido.valor_total_factura_usd,
+            pedido.valor_total_comision_usd,
+            pedido.valor_comision_pesos,
+            pedido.documento_cobro_comision,
+            pedido.fecha_pago_comision,
+            pedido.estado_comision,
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="pedidos_etnico.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de Pedidos Excel Fieldex --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url='home'))
+def exportar_pedidos_fieldex(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Pedidos Totales Fieldex'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
+
+    # Encabezados
+    columns = ['Cliente', 'Fecha Solicitud', 'Fecha Entrega', 'Exportador', 'Dias Cartera', 'awb',
+               'Destino', 'Numero Factura', 'Total Cajas Enviadas', 'No NC', 'Motivo NC', 'Valor Total NC',
+               'Tasa Representatativa', 'Valor Pagado Cliente', 'Comision Bancaria USD', 'Fecha Pago',
+               'TRM Monetizacion', 'Estado Factura', 'Diferencia Pago', 'Dias Vencimiento', 'Valor Total Factura USD',
+               'Valor Comision USD', 'Valor Comision Pesos', 'Documento Cobro Comision', 'Fecha Pago Comision',
+               'Estado Comision']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    # Obtener los datos de tu modelo
+    queryset = Pedido.objects.filter(exportadora__nombre='Fieldex')
+
+    # Agregar datos al libro de trabajo
+    for row_num, pedido in enumerate(queryset, start=2):
+        row = [
+            pedido.cliente.nombre,
+            pedido.fecha_solicitud,
+            pedido.fecha_entrega,
+            pedido.exportadora.nombre,
+            pedido.dias_cartera,
+            pedido.awb,
+            pedido.destino,
+            pedido.numero_factura,
+            pedido.total_cajas_enviadas,
+            pedido.nota_credito_no,
+            pedido.motivo_nota_credito,
+            pedido.valor_total_nota_credito_usd,
+            pedido.tasa_representativa_usd_diaria,
+            pedido.valor_pagado_cliente_usd,
+            pedido.comision_bancaria_usd,
+            pedido.fecha_pago,
+            pedido.trm_monetizacion,
+            pedido.estado_factura,
+            pedido.diferencia_por_abono,
+            pedido.dias_de_vencimiento,
+            pedido.valor_total_factura_usd,
+            pedido.valor_total_comision_usd,
+            pedido.valor_comision_pesos,
+            pedido.documento_cobro_comision,
+            pedido.fecha_pago_comision,
+            pedido.estado_comision,
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="pedidos_fieldex.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de Pedidos Excel Juan Matas ---------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url='home'))
+def exportar_pedidos_juan(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Pedidos Totales Juan Matas'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
+
+    # Encabezados
+    columns = ['Cliente', 'Fecha Solicitud', 'Fecha Entrega', 'Exportador', 'Dias Cartera', 'awb',
+               'Destino', 'Numero Factura', 'Total Cajas Enviadas', 'No NC', 'Motivo NC', 'Valor Total NC',
+               'Tasa Representatativa', 'Valor Pagado Cliente', 'Comision Bancaria USD', 'Fecha Pago',
+               'TRM Monetizacion', 'Estado Factura', 'Diferencia Pago', 'Dias Vencimiento', 'Valor Total Factura USD',
+               'Valor Comision USD', 'Valor Comision Pesos', 'Documento Cobro Comision', 'Fecha Pago Comision',
+               'Estado Comision']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    # Obtener los datos de tu modelo
+    queryset = Pedido.objects.filter(exportadora__nombre='Juan_Matas')
+
+    # Agregar datos al libro de trabajo
+    for row_num, pedido in enumerate(queryset, start=2):
+        row = [
+            pedido.cliente.nombre,
+            pedido.fecha_solicitud,
+            pedido.fecha_entrega,
+            pedido.exportadora.nombre,
+            pedido.dias_cartera,
+            pedido.awb,
+            pedido.destino,
+            pedido.numero_factura,
+            pedido.total_cajas_enviadas,
+            pedido.nota_credito_no,
+            pedido.motivo_nota_credito,
+            pedido.valor_total_nota_credito_usd,
+            pedido.tasa_representativa_usd_diaria,
+            pedido.valor_pagado_cliente_usd,
+            pedido.comision_bancaria_usd,
+            pedido.fecha_pago,
+            pedido.trm_monetizacion,
+            pedido.estado_factura,
+            pedido.diferencia_por_abono,
+            pedido.dias_de_vencimiento,
+            pedido.valor_total_factura_usd,
+            pedido.valor_total_comision_usd,
+            pedido.valor_comision_pesos,
+            pedido.documento_cobro_comision,
+            pedido.fecha_pago_comision,
+            pedido.estado_comision,
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="pedidos_juan_matas.xlsx"'
+
+    return response
 
 
 # -------------------------- Funciones De Exportacion Cartera General--------------------------------------------------

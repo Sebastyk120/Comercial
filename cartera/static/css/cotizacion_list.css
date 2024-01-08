@@ -51,7 +51,6 @@ label {
 .table td {
     text-align: center; /* Centra el contenido horizontalmente */
     vertical-align: middle; /* Centra el contenido verticalmente */
-    /* Otros estilos que ya tengas, como el ancho máximo, etc. */
 }
 
 .table thead tr {
