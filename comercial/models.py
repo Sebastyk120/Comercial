@@ -13,7 +13,7 @@ from .choices import motivo_nota
 
 
 class Fruta(models.Model):
-    nombre = models.CharField(max_length=20)
+    nombre = models.CharField(max_length=20, unique=True)
 
     class Meta:
         ordering = ['nombre']
@@ -23,7 +23,7 @@ class Fruta(models.Model):
 
 
 class Pais(models.Model):
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100, unique=True)
 
     class Meta:
         ordering = ['nombre']
@@ -33,7 +33,7 @@ class Pais(models.Model):
 
 
 class Exportador(models.Model):
-    nombre = models.CharField(max_length=30)
+    nombre = models.CharField(max_length=30, unique=True)
 
     class Meta:
         ordering = ['nombre']
@@ -43,7 +43,7 @@ class Exportador(models.Model):
 
 
 class TipoCaja(models.Model):
-    nombre = models.CharField(max_length=50, verbose_name="Tipo De Caja")
+    nombre = models.CharField(max_length=50, verbose_name="Tipo De Caja", unique=True)
 
     class Meta:
         ordering = ['nombre']
@@ -53,7 +53,7 @@ class TipoCaja(models.Model):
 
 
 class Cliente(models.Model):
-    nombre = models.CharField(max_length=255, verbose_name="Nombre Cliente")
+    nombre = models.CharField(max_length=255, verbose_name="Nombre Cliente", unique=True)
     direccion = models.CharField(max_length=255, verbose_name="Direccion")
     ciudad = models.CharField(max_length=100, verbose_name="Ciudad")
     pais = models.ForeignKey(Pais, on_delete=models.CASCADE, verbose_name="Pais")
@@ -171,7 +171,7 @@ class Pedido(models.Model):
 
 
 class Presentacion(models.Model):
-    nombre = models.CharField(max_length=255, verbose_name="Presentacion")
+    nombre = models.CharField(max_length=255, verbose_name="Presentacion", unique=True)
     kilos = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
                                 verbose_name="Kilos")
     fruta = models.ForeignKey(Fruta, on_delete=models.CASCADE, verbose_name="Fruta")
@@ -184,7 +184,7 @@ class Presentacion(models.Model):
 
 
 class Contenedor(models.Model):
-    nombre = models.CharField(max_length=255, verbose_name="Nombre del Contenedor")
+    nombre = models.CharField(max_length=255, verbose_name="Nombre del Contenedor", unique=True)
 
     class Meta:
         ordering = ['nombre']

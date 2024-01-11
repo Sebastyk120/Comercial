@@ -9,7 +9,7 @@ from comercial.models import Referencias, Exportador
 
 
 class Bodega(models.Model):
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100, unique=True)
     exportador = models.ForeignKey(Exportador, on_delete=models.CASCADE, verbose_name="Exportador")
 
     class Meta:
@@ -20,7 +20,7 @@ class Bodega(models.Model):
 
 
 class Proveedor(models.Model):
-    nombre = models.CharField(max_length=100, verbose_name="Proveedor")
+    nombre = models.CharField(max_length=100, verbose_name="Proveedor", unique=True)
 
     class Meta:
         ordering = ['nombre']

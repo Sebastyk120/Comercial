@@ -103,19 +103,19 @@ label {
 [name="volver"] {
     position: absolute;
     left: 90%;
-    top: 110px;
+    top: 85px;
 }
 
 [name="add"] {
     position: absolute;
     left: 50%;
-    top: 110px;
+    top: 85px;
 }
 
 [name="exportar"] {
     position: absolute;
     left: 60%;
-    top: 115px;
+    top: 90px;
 }
 
 

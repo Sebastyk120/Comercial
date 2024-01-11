@@ -26,5 +26,9 @@ urlpatterns = [
     path('exportar_pedidos_etnico', views.exportar_pedidos_etnico, name='exportar_pedidos_etnico'),
     path('exportar_pedidos_fieldex', views.exportar_pedidos_fieldex, name='exportar_pedidos_fieldex'),
     path('exportar_pedidos_juan', views.exportar_pedidos_juan, name='exportar_pedidos_juan'),
+    path('comision_list_heavens', views.ComisionHeavensListView.as_view(), name='comision_list_heavens'),
+    path('comision_list_etnico', views.ComisionEtnicoListView.as_view(), name='comision_list_etnico'),
+    path('comision_list_fieldex', views.ComisionFiedexListView.as_view(), name='comision_list_fieldex'),
+    path('comision_list_juan', views.ComisionJuanListView.as_view(), name='comision_list_juan'),
 
 ]

@@ -16,27 +16,35 @@
     </head>
     <body>
     <h1 class="text-center my-4">Cotizador Etnico</h1>
-    <!-- Formulario para seleccionar la semana -->
-        <form method="get" action="" class="mb-6">
-            <div class="form-group">
-                <label for="id_semana">Obtener datos de la semana:</label>
-                {{ form.semana }}
-                <input type="submit" value="Cargar Semana" class="btn btn-primary ml-2">
-            </div>
-        </form>
-
-        <!-- Formulario principal -->
-        <form method="post" class="mb-6">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_semana">Semana:</label>
-                {{ form.semana }}
+    <div class="container">
+        <div class="row justify-content-center">
+            <!-- Formulario para seleccionar la semana -->
+            <div class="col-md-6">
+                <form method="get" action="" class="mb-6">
+                    <div class="form-group">
+                        <label for="id_semana">Obtener datos de la semana:</label>
+                        {{ form.semana }}
+                        <input type="submit" value="Cargar Semana" class="btn btn-primary ml-2">
+                    </div>
+                </form>
             </div>
 
-            <div class="form-group">
-                <label for="id_trm_cotizacion">TRM Monetización $:</label>
-                {{ form.trm_cotizacion }}
+            <!-- Formulario principal -->
+            <div class="col-md-6">
+                <form method="post" class="mb-6">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_semana">Semana:</label>
+                        {{ form.semana }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_trm_cotizacion">TRM Monetización $:</label>
+                        {{ form.trm_cotizacion }}
+                    </div>
             </div>
+        </div>
+    </div>
     <!-- Tabla de cotizaciones -->
     <table class="table table-bordered full-width-table">
         <thead class="thead-dark">
@@ -63,7 +71,7 @@
         </tbody>
     </table>
 
-    <input type="submit" value="Actualizar Cot" class="btn btn-success" name="update">
+    <input type="submit" value="Actualizar Cotizacion" class="btn btn-success" name="update">
     </form>
     <script>
         window.onload = function () {

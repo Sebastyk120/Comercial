@@ -18,7 +18,7 @@ from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm,
 from .models import Pedido, DetallePedido
 from .resources import obtener_datos_con_totales, crear_archivo_excel, obtener_datos_con_totales_etnico, \
     obtener_datos_con_totales_fieldex, obtener_datos_con_totales_juan
-from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable, CarteraPedidoTable
+from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable, CarteraPedidoTable, ComisionPedidoTable
 
 
 # from .resources import CarteraPedidoResource
@@ -969,6 +969,98 @@ class CarteraJuanListView(SingleTableView):
     model = Pedido
     table_class = CarteraPedidoTable
     template_name = 'cartera_list_juan.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Juan_Matas')
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# ------------------------- COMISIONES GENERAL /// Table mostrar comisiones de pedidos Heavens ///  ------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Heavens'), login_url=reverse_lazy('home')), name='dispatch')
+class ComisionHeavensListView(SingleTableView):
+    model = Pedido
+    table_class = ComisionPedidoTable
+    template_name = 'comision_list_heavens.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# ------------------------- COMISIONES /// Table mostrar comisiones de pedidos Etnico ///  ---------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Etnico'), login_url=reverse_lazy('home')), name='dispatch')
+class ComisionEtnicoListView(SingleTableView):
+    model = Pedido
+    table_class = ComisionPedidoTable
+    template_name = 'comision_list_etnico.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Etnico')
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# ------------------------- COMISIONES /// Table mostrar comisiones de pedidos Fieldex ///  ---------------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url=reverse_lazy('home')), name='dispatch')
+class ComisionFiedexListView(SingleTableView):
+    model = Pedido
+    table_class = ComisionPedidoTable
+    template_name = 'comision_list_fieldex.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportadora__nombre='Fieldex')
+        form = self.form_class(self.request.GET)
+        if form.is_valid() and form.cleaned_data.get('item_busqueda'):
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['item_busqueda'] = self.form_class(self.request.GET)
+        return context
+
+
+# ------------------------- COMISIONES /// Table mostrar comisiones de pedidos Juan Matas // -----------------------
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url=reverse_lazy('home')), name='dispatch')
+class ComisionJuanListView(SingleTableView):
+    model = Pedido
+    table_class = ComisionPedidoTable
+    template_name = 'comision_list_juan.html'
     form_class = SearchForm
 
     def get_queryset(self):
