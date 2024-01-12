@@ -22,7 +22,7 @@ h1 {
 .table {
     border-collapse: collapse;
     margin: 25px 0;
-    font-size: 0.7em;
+    font-size: 0.8em;
     font-family: 'Montserrat', sans-serif;
     width: 100%;
     min-width: 400px;/* Hace que la tabla ocupe el 100% del ancho disponible */
@@ -118,7 +118,11 @@ label {
     top: 90px;
 }
 
-
+[name="exportardetalle"] {
+    position: absolute;
+    left: 30%;
+    top: 90px;
+}
 #add {
     position: fixed;
     transition: all 300ms ease 0ms;

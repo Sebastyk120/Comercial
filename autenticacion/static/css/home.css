@@ -69,8 +69,8 @@
 /*      Custom Icons    */
 
 .icon-pedidosheavens {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/heavens.png);
   background-position: center center;
@@ -78,14 +78,14 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
 .icon-pedidosetnico {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/etnico.png);
   background-position: center center;
@@ -93,14 +93,14 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
 .icon-pedidosfieldex {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/fieldex.png);
   background-position: center center;
@@ -108,14 +108,14 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px;
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
 .icon-pedidosjuan {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/juan_matas.png);
   background-position: center center;
@@ -123,13 +123,13 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px;
+  line-height: 240px;
   font-size: 12px;
 }
 
 .icon-inventarioheavens {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/inventarioheavens.png);
   background-position: center center;
@@ -137,14 +137,14 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
 .icon-inventarioetnico {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/inventarioetnico.png);
   background-position: center center;
@@ -152,14 +152,14 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
 .icon-inventariofieldex {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/fieldexinventario.png);
   background-position: center center;
@@ -167,15 +167,15 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
 
 .icon-inventariojuan {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/inventariojuan.png);
   background-position: center center;
@@ -183,14 +183,14 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
 .icon-tesoreria {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/tesoreria.png);
   background-position: center center;
@@ -198,44 +198,44 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
-.icon-trasportes {
-  width: 95px;
-  height: 95px;
+.icon-admin {
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
-  background-image: url(../img/transporte.png);
+  background-image: url(../img/Administracion.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
-.icon-legalizaciones {
-  width: 95px;
-  height: 95px;
+.icon-comparador {
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
-  background-image: url(../img/legalizaciones.png);
+  background-image: url(../img/comparador.png);
   background-position: center center;
   background-size: cover;
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }
 
 .icon-logout {
-  width: 95px;
-  height: 95px;
+  width: 110px;
+  height: 110px;
   border-radius: 8px;
   background-image: url(../img/logout.png);
   background-position: center center;
@@ -243,7 +243,7 @@
   background-repeat: no-repeat;
   transition-duration: 0.4s;
   text-align: center;
-  line-height: 210px; 
+  line-height: 240px;
   text-overflow: ellipsis;
   font-size: 12px;
 }

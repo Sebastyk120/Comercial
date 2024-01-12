@@ -30,5 +30,10 @@ urlpatterns = [
     path('comision_list_etnico', views.ComisionEtnicoListView.as_view(), name='comision_list_etnico'),
     path('comision_list_fieldex', views.ComisionFiedexListView.as_view(), name='comision_list_fieldex'),
     path('comision_list_juan', views.ComisionJuanListView.as_view(), name='comision_list_juan'),
+    path('exportar_comisiones_heavens', views.exportar_comisiones_excel, name='exportar_comisiones_heavens'),
+    path('exportar_comisiones_etnico', views.exportar_comisiones_etnico, name='exportar_comisiones_etnico'),
+    path('exportar_comisiones_fieldex', views.exportar_comisiones_fieldex, name='exportar_comisiones_fieldex'),
+    path('exportar_comisiones_juan', views.exportar_comisiones_juan, name='exportar_comisiones_juan'),
+    path('exportar_detalles_p_heavens', views.exportar_detalles_pedidos_excel, name='exportar_detalles_p_heavens'),
 
 ]

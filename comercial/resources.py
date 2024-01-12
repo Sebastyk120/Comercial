@@ -6,6 +6,7 @@ from .models import Pedido
 from django.db.models import Sum
 
 
+# ////////////////////////////////////// Exportaciones De Cartera /////////////////////////////////////////////////////
 def obtener_datos_con_totales_juan():
     # Obtener los pedidos y sus datos
     pedidos = Pedido.objects.filter(exportadora__nombre='Juan_Matas').values(
@@ -155,3 +156,4 @@ def crear_archivo_excel(pedidos, totales, ruta_archivo):
     workbook.save(ruta_archivo)
 
     return ruta_archivo
+# ////////////////////////////////////// Fin Exportaciones De Cartera /////////////////////////////////////////////////

@@ -1,4 +1,6 @@
 import io
+from collections import defaultdict
+from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
@@ -11,7 +13,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.workbook import Workbook
 from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm, DetallePedidoForm, \
     EliminarDetallePedidoForm, EditarPedidoExportadorForm, EditarDetallePedidoForm
@@ -32,6 +34,507 @@ def es_miembro_del_grupo(nombre_grupo):
     return es_miembro
 
 
+# ------------------ Exportacion de Comisiones Excel General --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
+def exportar_comisiones_excel(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Comisiones Totales General'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="3ef983", end_color="3ef983", fill_type="solid")
+    total_font = Font(bold=True, color="FFFFFF")
+    total_fill = PatternFill(start_color="3580e0", end_color="3580e0", fill_type="solid")
+    total_align = Alignment(horizontal="center")
+
+    # Encabezados
+    columns = ['Pedido', 'Cliente', 'Exportador', 'Fecha Pago Cliente', 'Valor Total Factura USD', 'Estado Factura',
+               'Trm Monetizacion', 'Valor Comision USD', 'Valor Comision Pesos', 'Documento Cobro Comision',
+               'Fecha Pago Comision', 'Diferencia O Abono', 'Estado Comision', 'Cobrar comision']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+    # Crear un diccionario para almacenar los totales de comisiones por exportadora
+    totales_por_comision_usd = defaultdict(Decimal)
+    totales_no_cobrables_por_exportadora = defaultdict(Decimal)
+    totales_cobrados_por_exportadora = defaultdict(Decimal)
+    totales_por_cobrar_por_exportadora = defaultdict(Decimal)
+
+    # Obtener los datos de tu modelo y calcular los totales
+    for pedido in Pedido.objects.all():
+        if pedido.diferencia_por_abono < 0:
+            totales_no_cobrables_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        if pedido.fecha_pago_comision is not None:
+            totales_cobrados_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono > 0:
+            totales_por_cobrar_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        totales_por_comision_usd[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+    # Obtener los datos de tu modelo
+    queryset = Pedido.objects.all()
+
+    # Agregar datos al libro de trabajo
+    for row_num, pedido in enumerate(queryset, start=2):
+        cobrar_comision = "Sí" if pedido.diferencia_por_abono >= 0 else "No"
+        row = [
+            pedido.pk,
+            pedido.cliente.nombre,
+            pedido.exportadora.nombre,
+            pedido.fecha_pago,
+            pedido.valor_total_factura_usd,
+            pedido.estado_factura,
+            pedido.trm_monetizacion,
+            pedido.valor_total_comision_usd,
+            pedido.valor_comision_pesos,
+            pedido.documento_cobro_comision,
+            pedido.fecha_pago_comision,
+            pedido.diferencia_por_abono,
+            pedido.estado_comision,
+            cobrar_comision,  # Añadido valor de 'Cobrar comision'
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    # Agregar los totales al final de la hoja de trabajo
+
+    def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
+        for col in range(1, len(columns) + 1):
+            celda = worksheet.cell(row=fila, column=col)
+            celda.font = total_font
+            celda.fill = total_fill
+            celda.alignment = total_align
+
+    row_num += 2  # Saltar a la siguiente fila después de los datos
+    for exportadora, total in totales_por_comision_usd.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes USD " + exportadora)
+        worksheet.cell(row=row_num, column=3, value=total)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_no_cobrable in totales_no_cobrables_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes No Cobrables USD " + exportadora)
+        worksheet.cell(row=row_num, column=3, value=total_no_cobrable)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_cobrado in totales_cobrados_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes Cobradas " + exportadora)
+        worksheet.cell(row=row_num, column=3, value=total_cobrado)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_por_cobrar in totales_por_cobrar_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Por Cobrar " + exportadora)
+        worksheet.cell(row=row_num, column=3, value=total_por_cobrar)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="comisiones_pedidos_general.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de Comisiones Excel Etnico --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Etnico'), login_url='home'))
+def exportar_comisiones_etnico(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Comisiones Totales Etnico'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="3ef983", end_color="3ef983", fill_type="solid")
+    total_font = Font(bold=True, color="FFFFFF")
+    total_fill = PatternFill(start_color="3580e0", end_color="3580e0", fill_type="solid")
+    total_align = Alignment(horizontal="center")
+
+    # Encabezados
+    columns = ['Pedido', 'Cliente', 'Exportador', 'Fecha Pago Cliente', 'Valor Total Factura USD', 'Estado Factura',
+               'Trm Monetizacion', 'Valor Comision USD', 'Valor Comision Pesos', 'Documento Cobro Comision',
+               'Fecha Pago Comision', 'Diferencia O Abono', 'Estado Comision', 'Cobrar comision']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+    # Crear un diccionario para almacenar los totales de comisiones por exportadora
+    totales_por_comision_usd = defaultdict(Decimal)
+    totales_no_cobrables_por_exportadora = defaultdict(Decimal)
+    totales_cobrados_por_exportadora = defaultdict(Decimal)
+    totales_por_cobrar_por_exportadora = defaultdict(Decimal)
+
+    # Obtener los datos de tu modelo y calcular los totales
+    for pedido in Pedido.objects.filter(exportadora__nombre='Etnico'):
+        if pedido.diferencia_por_abono < 0:
+            totales_no_cobrables_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        if pedido.fecha_pago_comision is not None:
+            totales_cobrados_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono > 0:
+            totales_por_cobrar_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        totales_por_comision_usd[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+    # Obtener los datos de tu modelo
+    queryset = Pedido.objects.filter(exportadora__nombre='Etnico')
+
+    # Agregar datos al libro de trabajo
+    for row_num, pedido in enumerate(queryset, start=2):
+        cobrar_comision = "Sí" if pedido.diferencia_por_abono >= 0 else "No"
+        row = [
+            pedido.pk,
+            pedido.cliente.nombre,
+            pedido.exportadora.nombre,
+            pedido.fecha_pago,
+            pedido.valor_total_factura_usd,
+            pedido.estado_factura,
+            pedido.trm_monetizacion,
+            pedido.valor_total_comision_usd,
+            pedido.valor_comision_pesos,
+            pedido.documento_cobro_comision,
+            pedido.fecha_pago_comision,
+            pedido.diferencia_por_abono,
+            pedido.estado_comision,
+            cobrar_comision,  # Añadido valor de 'Cobrar comision'
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    # Agregar los totales al final de la hoja de trabajo
+
+    def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
+        for col in range(1, len(columns) + 1):
+            celda = worksheet.cell(row=fila, column=col)
+            celda.font = total_font
+            celda.fill = total_fill
+            celda.alignment = total_align
+
+    row_num += 2  # Saltar a la siguiente fila después de los datos
+    for exportadora, total in totales_por_comision_usd.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes USD")
+        worksheet.cell(row=row_num, column=3, value=total)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_no_cobrable in totales_no_cobrables_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes No Cobrables USD")
+        worksheet.cell(row=row_num, column=3, value=total_no_cobrable)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_cobrado in totales_cobrados_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes Pagadas")
+        worksheet.cell(row=row_num, column=3, value=total_cobrado)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_por_cobrar in totales_por_cobrar_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiones Por Pagar")
+        worksheet.cell(row=row_num, column=3, value=total_por_cobrar)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="comisiones_pedidos_etnico.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de Comisiones Excel Fieldex --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url='home'))
+def exportar_comisiones_fieldex(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Comisiones Totales Fieldex'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="3ef983", end_color="3ef983", fill_type="solid")
+    total_font = Font(bold=True, color="FFFFFF")
+    total_fill = PatternFill(start_color="3580e0", end_color="3580e0", fill_type="solid")
+    total_align = Alignment(horizontal="center")
+
+    # Encabezados
+    columns = ['Pedido', 'Cliente', 'Exportador', 'Fecha Pago Cliente', 'Valor Total Factura USD', 'Estado Factura',
+               'Trm Monetizacion', 'Valor Comision USD', 'Valor Comision Pesos', 'Documento Cobro Comision',
+               'Fecha Pago Comision', 'Diferencia O Abono', 'Estado Comision', 'Cobrar comision']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+    # Crear un diccionario para almacenar los totales de comisiones por exportadora
+    totales_por_comision_usd = defaultdict(Decimal)
+    totales_no_cobrables_por_exportadora = defaultdict(Decimal)
+    totales_cobrados_por_exportadora = defaultdict(Decimal)
+    totales_por_cobrar_por_exportadora = defaultdict(Decimal)
+
+    # Obtener los datos de tu modelo y calcular los totales
+    for pedido in Pedido.objects.filter(exportadora__nombre='Fieldex'):
+        if pedido.diferencia_por_abono < 0:
+            totales_no_cobrables_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        if pedido.fecha_pago_comision is not None:
+            totales_cobrados_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono > 0:
+            totales_por_cobrar_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        totales_por_comision_usd[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+    # Obtener los datos de tu modelo
+    queryset = Pedido.objects.filter(exportadora__nombre='Fieldex')
+
+    # Agregar datos al libro de trabajo
+    for row_num, pedido in enumerate(queryset, start=2):
+        cobrar_comision = "Sí" if pedido.diferencia_por_abono >= 0 else "No"
+        row = [
+            pedido.pk,
+            pedido.cliente.nombre,
+            pedido.exportadora.nombre,
+            pedido.fecha_pago,
+            pedido.valor_total_factura_usd,
+            pedido.estado_factura,
+            pedido.trm_monetizacion,
+            pedido.valor_total_comision_usd,
+            pedido.valor_comision_pesos,
+            pedido.documento_cobro_comision,
+            pedido.fecha_pago_comision,
+            pedido.diferencia_por_abono,
+            pedido.estado_comision,
+            cobrar_comision,  # Añadido valor de 'Cobrar comision'
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    # Agregar los totales al final de la hoja de trabajo
+
+    def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
+        for col in range(1, len(columns) + 1):
+            celda = worksheet.cell(row=fila, column=col)
+            celda.font = total_font
+            celda.fill = total_fill
+            celda.alignment = total_align
+
+    row_num += 2  # Saltar a la siguiente fila después de los datos
+    for exportadora, total in totales_por_comision_usd.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes USD")
+        worksheet.cell(row=row_num, column=3, value=total)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_no_cobrable in totales_no_cobrables_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes No Cobrables USD")
+        worksheet.cell(row=row_num, column=3, value=total_no_cobrable)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_cobrado in totales_cobrados_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes Pagadas")
+        worksheet.cell(row=row_num, column=3, value=total_cobrado)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_por_cobrar in totales_por_cobrar_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiones Por Pagar")
+        worksheet.cell(row=row_num, column=3, value=total_por_cobrar)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="comisiones_pedidos_fieldex.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de Comisiones Excel Juan Matas --------------------------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url='home'))
+def exportar_comisiones_juan(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Comisiones Totales Juan Matas'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="3ef983", end_color="3ef983", fill_type="solid")
+    total_font = Font(bold=True, color="FFFFFF")
+    total_fill = PatternFill(start_color="3580e0", end_color="3580e0", fill_type="solid")
+    total_align = Alignment(horizontal="center")
+
+    # Encabezados
+    columns = ['Pedido', 'Cliente', 'Exportador', 'Fecha Pago Cliente', 'Valor Total Factura USD', 'Estado Factura',
+               'Trm Monetizacion', 'Valor Comision USD', 'Valor Comision Pesos', 'Documento Cobro Comision',
+               'Fecha Pago Comision', 'Diferencia O Abono', 'Estado Comision', 'Cobrar comision']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+    # Crear un diccionario para almacenar los totales de comisiones por exportadora
+    totales_por_comision_usd = defaultdict(Decimal)
+    totales_no_cobrables_por_exportadora = defaultdict(Decimal)
+    totales_cobrados_por_exportadora = defaultdict(Decimal)
+    totales_por_cobrar_por_exportadora = defaultdict(Decimal)
+
+    # Obtener los datos de tu modelo y calcular los totales
+    for pedido in Pedido.objects.filter(exportadora__nombre='Juan_Matas'):
+        if pedido.diferencia_por_abono < 0:
+            totales_no_cobrables_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        if pedido.fecha_pago_comision is not None:
+            totales_cobrados_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono > 0:
+            totales_por_cobrar_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+        totales_por_comision_usd[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
+    # Obtener los datos de tu modelo
+    queryset = Pedido.objects.filter(exportadora__nombre='Juan_Matas')
+
+    # Agregar datos al libro de trabajo
+    for row_num, pedido in enumerate(queryset, start=2):
+        cobrar_comision = "Sí" if pedido.diferencia_por_abono >= 0 else "No"
+        row = [
+            pedido.pk,
+            pedido.cliente.nombre,
+            pedido.exportadora.nombre,
+            pedido.fecha_pago,
+            pedido.valor_total_factura_usd,
+            pedido.estado_factura,
+            pedido.trm_monetizacion,
+            pedido.valor_total_comision_usd,
+            pedido.valor_comision_pesos,
+            pedido.documento_cobro_comision,
+            pedido.fecha_pago_comision,
+            pedido.diferencia_por_abono,
+            pedido.estado_comision,
+            cobrar_comision,  # Añadido valor de 'Cobrar comision'
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    # Agregar los totales al final de la hoja de trabajo
+
+    def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
+        for col in range(1, len(columns) + 1):
+            celda = worksheet.cell(row=fila, column=col)
+            celda.font = total_font
+            celda.fill = total_fill
+            celda.alignment = total_align
+
+    row_num += 2  # Saltar a la siguiente fila después de los datos
+    for exportadora, total in totales_por_comision_usd.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes USD")
+        worksheet.cell(row=row_num, column=3, value=total)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_no_cobrable in totales_no_cobrables_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes No Cobrables USD")
+        worksheet.cell(row=row_num, column=3, value=total_no_cobrable)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_cobrado in totales_cobrados_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiónes Pagadas")
+        worksheet.cell(row=row_num, column=3, value=total_cobrado)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+    for exportadora, total_por_cobrar in totales_por_cobrar_por_exportadora.items():
+        worksheet.cell(row=row_num, column=1, value=exportadora)
+        worksheet.cell(row=row_num, column=2, value="Total Comisiones Por Pagar")
+        worksheet.cell(row=row_num, column=3, value=total_por_cobrar)
+        aplicar_estilo_total(row_num)
+        row_num += 1  # Prepararse para la siguiente fila
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="comisiones_pedidos_juan.xlsx"'
+
+    return response
+
+
+# ------------------ Exportacion de Detalles de Pedidos Excel General -------------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
+def exportar_detalles_pedidos_excel(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Detalles De Pedidos General'
+    font = Font(bold=True, color="FFFFFF")
+    fill = PatternFill(start_color="251819", end_color="251819", fill_type="solid")
+
+    # Encabezados
+    columns = ['Pedido', 'Cliente', 'Fruta', 'Presentacion', 'Cajas Solicitadas', 'Peso Presentacion', 'kilos', 'Cajas Enviadas',
+               'Kilos Enviados', 'Diferencia', 'Tipo Caja', 'Referencia', 'Stiker', 'Lleva Contenedor',
+               'Ref Contenedor', 'Cant Contenedor', 'Tarifa Comision', 'Valor x Caja USD', 'Valor X Producto',
+               'No Cajas NC', 'Valor NC', 'Afecta Comision', 'Valor Total Comision Producto']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    # Obtener los datos de tu modelo
+    queryset = DetallePedido.objects.all()
+
+    # Agregar datos al libro de trabajo
+    for row_num, detalle in enumerate(queryset, start=2):
+        row = [
+            "No-" + str(detalle.pedido.pk),
+            detalle.pedido.cliente.nombre,
+            detalle.fruta.nombre,
+            detalle.presentacion.nombre,
+            detalle.cajas_solicitadas,
+            detalle.presentacion_peso,
+            detalle.kilos,
+            detalle.cajas_enviadas,
+            detalle.kilos_enviados,
+            detalle.diferencia,
+            detalle.tipo_caja.nombre,
+            detalle.referencia.nombre,
+            detalle.stickers,
+            detalle.lleva_contenedor,
+            detalle.referencia_contenedor,
+            detalle.cantidad_contenedores,
+            detalle.tarifa_comision,
+            detalle.valor_x_caja_usd,
+            detalle.valor_x_producto,
+            detalle.no_cajas_nc,
+            detalle.valor_nota_credito_usd,
+            detalle.afecta_comision,
+            detalle.valor_total_comision_x_producto,
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="Detalles_Pedidos.xlsx"'
+
+    return response
+
 # ------------------ Exportacion de Pedidos Excel General --------------------------------------------------------
 @login_required
 @user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
@@ -41,8 +544,8 @@ def exportar_pedidos_excel(request):
     workbook = Workbook()
     worksheet = workbook.active
     worksheet.title = 'Pedidos Totales General'
-    font = Font(bold=True)
-    fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
+    font = Font(bold=True, color="FFFFFF")
+    fill = PatternFill(start_color="1e0c42", end_color="1e0c42", fill_type="solid")
 
     # Encabezados
     columns = ['No', 'Cliente', 'Fecha Solicitud', 'Fecha Entrega', 'Exportador', 'Dias Cartera', 'awb',
