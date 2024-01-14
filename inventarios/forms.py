@@ -26,16 +26,16 @@ class ItemForm(forms.ModelForm):
 
     class Meta:
         model = Item
-        fields = ['numero_item', 'cantidad_cajas', 'documento', 'bodega', 'proveedor', 'fecha_movimiento', 'propiedad',
-                  'observaciones']
+        fields = ['bodega', 'numero_item', 'cantidad_cajas', 'tipo_documento', 'documento', 'proveedor',
+                  'fecha_movimiento', 'propiedad', 'observaciones']
 
 
 # Formulario para editar un Item General ----------------------------------------------------------------
 class EditarItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ['numero_item', 'cantidad_cajas', 'documento', 'proveedor', 'fecha_movimiento', 'propiedad',
-                  'observaciones']
+        fields = ['numero_item', 'cantidad_cajas', 'tipo_documento', 'documento', 'proveedor', 'fecha_movimiento',
+                  'propiedad', 'observaciones']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -48,13 +48,14 @@ class EditarItemForm(forms.ModelForm):
 class EliminarItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ['numero_item', 'cantidad_cajas', 'documento', 'proveedor', 'fecha_movimiento', 'propiedad',
-                  'observaciones']
+        fields = ['numero_item', 'cantidad_cajas', 'tipo_documento', 'documento', 'proveedor', 'fecha_movimiento',
+                  'propiedad', 'observaciones']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['numero_item'].disabled = True
         self.fields['cantidad_cajas'].disabled = True
+        self.fields['tipo_documento'].disabled = True
         self.fields['documento'].disabled = True
         self.fields['proveedor'].disabled = True
         self.fields['fecha_movimiento'].disabled = True

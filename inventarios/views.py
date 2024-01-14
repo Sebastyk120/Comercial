@@ -275,7 +275,7 @@ class ItemCreateView(CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-        bodega_predeterminada = Bodega.objects.get(nombre='Compras Efectivas', exportador__nombre='Etnico')
+        bodega_predeterminada = Bodega.objects.get(nombre='Ingreso: Compras Efectivas', exportador__nombre='Etnico')
         initial['bodega'] = bodega_predeterminada
         return initial
 
@@ -483,7 +483,7 @@ class ItemCreateViewFieldex(CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-        bodega_predeterminada = Bodega.objects.get(nombre='Compras Efectivas', exportador__nombre='Fieldex')
+        bodega_predeterminada = Bodega.objects.get(nombre='Ingreso: Compras Efectivas', exportador__nombre='Fieldex')
         initial['bodega'] = bodega_predeterminada
         return initial
 
@@ -554,7 +554,7 @@ class ItemCreateViewJuan(CreateView):
 
     def get_initial(self):
         initial = super().get_initial()
-        bodega_predeterminada = Bodega.objects.get(nombre='Compras Efectivas', exportador__nombre='Juan_Matas')
+        bodega_predeterminada = Bodega.objects.get(nombre='Ingreso: Compras Efectivas', exportador__nombre='Juan_Matas')
         initial['bodega'] = bodega_predeterminada
         return initial
 

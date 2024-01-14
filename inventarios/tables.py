@@ -18,9 +18,8 @@ class ItemTable(tables.Table):
         model = Item
         template_name = "django_tables2/bootstrap5-responsive.html"
         fields = (
-            "numero_item", "cantidad_cajas", "bodega", "proveedor", "fecha_movimiento", "propiedad", "documento",
-            "observaciones",
-            "user", "editar")
+            "numero_item", "cantidad_cajas", "bodega", "proveedor", "fecha_movimiento", "propiedad",
+            "tipo_documento", "documento", "observaciones", "user", "editar")
 
 
 # Historicos (Inventario De Movimientos).---------------------------------------------------------------------------
@@ -45,4 +44,4 @@ class InventarioTable(tables.Table):
 
     def render_stock_actual(self, record):
         return (record.compras_efectivas + record.saldos_iniciales) - (
-                    record.salidas + record.traslado_propio + record.traslado_remisionado + record.ventas)
+                record.salidas + record.traslado_propio + record.traslado_remisionado + record.ventas)

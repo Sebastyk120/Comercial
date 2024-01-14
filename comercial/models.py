@@ -1,14 +1,12 @@
 import math
 from datetime import datetime, timedelta
 from importlib import import_module
-
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
 from django.db.models.signals import post_save, post_delete, pre_save
 from django.dispatch import receiver
 from simple_history.models import HistoricalRecords
-
 from .choices import motivo_nota
 
 
@@ -232,7 +230,7 @@ class DetallePedido(models.Model):
     cantidad_contenedores = models.IntegerField(verbose_name="Cantidad Contenedores", blank=True, null=True,
                                                 editable=False)
     tarifa_comision = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                          verbose_name="Tarifa Comisión", null=True,
+                                          verbose_name="Tarifa Comision Por Caja", null=True,
                                           blank=True, default=0)
     valor_x_caja_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
                                            verbose_name="Valor X Caja USD", null=True,

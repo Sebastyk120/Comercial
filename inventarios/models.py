@@ -6,6 +6,7 @@ from django.db.models import Sum
 from django.db.models.signals import post_delete, post_save
 from django.dispatch import receiver
 from comercial.models import Referencias, Exportador
+from .choices import tipo_documento
 
 
 class Bodega(models.Model):
@@ -32,9 +33,10 @@ class Proveedor(models.Model):
 class Item(models.Model):
     numero_item = models.ForeignKey(Referencias, verbose_name="Referencia", on_delete=models.CASCADE)
     cantidad_cajas = models.IntegerField(validators=[MinValueValidator(1)], verbose_name="Cantidad Cajas")
-    documento = models.CharField(max_length=100, verbose_name="Documento", blank=True, null=True)
-    bodega = models.ForeignKey(Bodega, verbose_name="Bodega", on_delete=models.CASCADE)
-    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Proveedor")
+    tipo_documento = models.CharField(max_length=20, verbose_name="Tipo Documento", choices=tipo_documento)
+    documento = models.CharField(max_length=100, verbose_name="Documento")
+    bodega = models.ForeignKey(Bodega, verbose_name="Tipo De Movimiento", on_delete=models.CASCADE)
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Proveedor O Tercero")
     fecha_movimiento = models.DateField(verbose_name="Fecha Movimiento")
     propiedad = models.ForeignKey(Exportador, on_delete=models.CASCADE, verbose_name="Propiedad")
     observaciones = models.CharField(verbose_name="Observaciones", blank=True, null=True)
@@ -91,12 +93,12 @@ def actualizar_inventario_al_guardar(sender, instance, **kwargs):
             )
 
             campos_bodega = {
-                'Compras Efectivas': 'compras_efectivas',
-                'Saldos Iniciales': 'saldos_iniciales',
-                'Salidas': 'salidas',
-                'Traslado Propio': 'traslado_propio',
-                'Traslado Remisionado': 'traslado_remisionado',
-                'Ventas': 'ventas',
+                'Ingreso: Compras Efectivas': 'compras_efectivas',
+                'Ingreso: Saldos Iniciales': 'saldos_iniciales',
+                'Salida: Baja': 'salidas',
+                'Salida: Traslado Propio': 'traslado_propio',
+                'Salida: Traslado Remisionado': 'traslado_remisionado',
+                'Salida: Ventas': 'ventas',
             }
 
             campo_a_actualizar = campos_bodega.get(instance.bodega.nombre)
@@ -124,12 +126,12 @@ def actualizar_inventario_al_eliminar(sender, instance, **kwargs):
             nuevo_inventario = Inventario.objects.get(numero_item=instance.numero_item)
 
             campos_bodega = {
-                'Compras Efectivas': 'compras_efectivas',
-                'Saldos Iniciales': 'saldos_iniciales',
-                'Salidas': 'salidas',
-                'Traslado Propio': 'traslado_propio',
-                'Traslado Remisionado': 'traslado_remisionado',
-                'Ventas': 'ventas',
+                'Ingreso: Compras Efectivas': 'compras_efectivas',
+                'Ingreso: Saldos Iniciales': 'saldos_iniciales',
+                'Salida: Baja': 'salidas',
+                'Salida: Traslado Propio': 'traslado_propio',
+                'Salida: Traslado Remisionado': 'traslado_remisionado',
+                'Salida: Ventas': 'ventas',
             }
 
             campo_a_actualizar = campos_bodega.get(instance.bodega.nombre)

@@ -498,7 +498,7 @@ def exportar_detalles_pedidos_excel(request):
     # Agregar datos al libro de trabajo
     for row_num, detalle in enumerate(queryset, start=2):
         row = [
-            "No-" + str(detalle.pedido.pk),
+            detalle.pedido.pk,
             detalle.pedido.cliente.nombre,
             detalle.fruta.nombre,
             detalle.presentacion.nombre,
