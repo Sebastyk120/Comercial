@@ -483,7 +483,8 @@ def exportar_detalles_pedidos_excel(request):
     fill = PatternFill(start_color="251819", end_color="251819", fill_type="solid")
 
     # Encabezados
-    columns = ['Pedido', 'Cliente', 'Fruta', 'Presentacion', 'Cajas Solicitadas', 'Peso Presentacion', 'kilos', 'Cajas Enviadas',
+    columns = ['Pedido', 'Cliente', 'Fruta', 'Presentacion', 'Cajas Solicitadas', 'Peso Presentacion', 'kilos',
+               'Cajas Enviadas',
                'Kilos Enviados', 'Diferencia', 'Tipo Caja', 'Referencia', 'Stiker', 'Lleva Contenedor',
                'Ref Contenedor', 'Cant Contenedor', 'Tarifa Comision', 'Valor x Caja USD', 'Valor X Producto',
                'No Cajas NC', 'Valor NC', 'Afecta Comision', 'Valor Total Comision Producto']
@@ -534,6 +535,7 @@ def exportar_detalles_pedidos_excel(request):
     response['Content-Disposition'] = 'attachment; filename="Detalles_Pedidos.xlsx"'
 
     return response
+
 
 # ------------------ Exportacion de Pedidos Excel General --------------------------------------------------------
 @login_required

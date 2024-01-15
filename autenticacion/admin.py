@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+admin.site.site_header = "Administración Heavens Fruits"
+admin.site.site_title = "Administración Heavens"
+admin.site.index_title = "Bienvenido al Portal de Administración Heavens"

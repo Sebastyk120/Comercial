@@ -53,7 +53,7 @@ class TipoCaja(models.Model):
 class Cliente(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="Nombre Cliente", unique=True)
     direccion = models.CharField(max_length=255, verbose_name="Direccion")
-    ciudad = models.CharField(max_length=100, verbose_name="Ciudad")
+    ciudad = models.CharField(max_length=100, verbose_name="Ciudad", null=True, blank=True)
     pais = models.ForeignKey(Pais, on_delete=models.CASCADE, verbose_name="Pais")
     tax_id = models.CharField(max_length=50, verbose_name="Tax ID", null=True, blank=True)
     incoterm = models.CharField(max_length=50, verbose_name="Incoterm", null=True, blank=True)

@@ -1,0 +1,17 @@
+
+***Los Campos no Editables del modelo PEDIDO:
+dias_cartera, destino, total_cajas_enviadas, valor_total_nota_credito_usd, tasa_representativa_usd_diaria, estado_factura,
+diferencia_por_abono, dias_de_vencimiento, valor_total_factura_usd, valor_total_comision_usd, valor_comision_pesos, estado_comision
+
+***Los Campos no Editables del modelo DETALLEPEDIDO:
+
+
+
+campos_bodega = {
+                'Ingreso: Compras Efectivas': 'compras_efectivas',
+                'Ingreso: Saldos Iniciales': 'saldos_iniciales',
+                'Salida: Baja': 'salidas',
+                'Salida: Traslado Propio': 'traslado_propio',
+                'Salida: Traslado Remisionado': 'traslado_remisionado',
+                'Salida: Ventas': 'ventas',
+            }

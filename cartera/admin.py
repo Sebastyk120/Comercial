@@ -1,11 +1,15 @@
 from django.contrib import admin
+from import_export.admin import ImportExportModelAdmin
 from .models import CotizacionEtnico, CotizacionJuan, CotizacionFieldex
 from django.urls import reverse
 from django.utils.html import format_html
 from simple_history.admin import SimpleHistoryAdmin
 
+from .resources import CotizacionFieldexResource, CotizacionJuanResource, CotizacionEtnicoResource
 
-class CotizacionEtnicoAdmin(SimpleHistoryAdmin):
+
+class CotizacionEtnicoAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = CotizacionEtnicoResource
     list_display = ['presentacion', 'semana'] + ['view_history']
 
     def view_history(self, obj):
@@ -15,7 +19,8 @@ class CotizacionEtnicoAdmin(SimpleHistoryAdmin):
     view_history.short_description = "Ver Historial"
 
 
-class CotizacionJuanAdmin(SimpleHistoryAdmin):
+class CotizacionJuanAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = CotizacionJuanResource
     list_display = ['presentacion', 'semana'] + ['view_history']
 
     def view_history(self, obj):
@@ -25,7 +30,8 @@ class CotizacionJuanAdmin(SimpleHistoryAdmin):
     view_history.short_description = "Ver Historial"
 
 
-class CotizacionFieldexAdmin(SimpleHistoryAdmin):
+class CotizacionFieldexAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = CotizacionFieldexResource
     list_display = ['presentacion', 'semana'] + ['view_history']
 
     def view_history(self, obj):

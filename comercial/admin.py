@@ -4,9 +4,13 @@ from django.utils.html import format_html
 from .models import Pedido, Fruta, Pais, TipoCaja, Cliente, Presentacion, Contenedor, DetallePedido, Referencias, \
     Exportador
 from simple_history.admin import SimpleHistoryAdmin
+from import_export.admin import ImportExportModelAdmin
+from .resources import ClienteResource, PedidoResource, FrutaResource, DetallePedidoResource, ContenedorResource, \
+    PaisResource, PresentacionResource, ReferenciasResource, ExportadorResource, TipoCajaResource
 
 
-class PedidoAdmin(SimpleHistoryAdmin):
+class PedidoAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = PedidoResource
     # Tus campos existentes
     campos_no_editables = [field.name for field in Pedido._meta.fields if not field.editable]
     campos_editables = [field.name for field in Pedido._meta.fields if field.editable]
@@ -21,7 +25,8 @@ class PedidoAdmin(SimpleHistoryAdmin):
     view_history.short_description = "Ver Historial"
 
 
-class DetallePedidoAdmin(admin.ModelAdmin):
+class DetallePedidoAdmin(ImportExportModelAdmin, SimpleHistoryAdmin):
+    resource_class = DetallePedidoResource
     # Obtener todos los campos no editables del modelo
     campos_no_editables = [field.name for field in DetallePedido._meta.fields if not field.editable]
     campos_editables = [field.name for field in DetallePedido._meta.fields if field.editable]
@@ -35,13 +40,45 @@ class DetallePedidoAdmin(admin.ModelAdmin):
     view_history.short_description = "Ver Historial"
 
 
+@admin.register(Cliente)
+class MyModelAdmin(ImportExportModelAdmin):
+    resource_class = ClienteResource
+
+
+@admin.register(Exportador)
+class MyModelAdmin(ImportExportModelAdmin):
+    resource_class = ExportadorResource
+
+
+@admin.register(Contenedor)
+class MyModelAdmin(ImportExportModelAdmin):
+    resource_class = ContenedorResource
+
+
+@admin.register(Fruta)
+class MyModelAdmin(ImportExportModelAdmin):
+    resource_class = FrutaResource
+
+
+@admin.register(Pais)
+class MyModelAdmin(ImportExportModelAdmin):
+    resource_class = PaisResource
+
+
+@admin.register(Presentacion)
+class MyModelAdmin(ImportExportModelAdmin):
+    resource_class = PresentacionResource
+
+
+@admin.register(Referencias)
+class MyModelAdmin(ImportExportModelAdmin):
+    resource_class = ReferenciasResource
+
+
+@admin.register(TipoCaja)
+class MyModelAdmin(ImportExportModelAdmin):
+    resource_class = TipoCajaResource
+
+
 admin.site.register(Pedido, PedidoAdmin)
-admin.site.register(Fruta)
-admin.site.register(Pais)
-admin.site.register(TipoCaja)
-admin.site.register(Cliente)
-admin.site.register(Presentacion)
-admin.site.register(Contenedor)
 admin.site.register(DetallePedido, DetallePedidoAdmin)
-admin.site.register(Referencias)
-admin.site.register(Exportador)

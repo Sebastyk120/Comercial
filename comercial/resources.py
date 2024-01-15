@@ -2,7 +2,8 @@ from import_export import resources, fields
 import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils import get_column_letter
-from .models import Pedido
+from .models import Pedido, Cliente, Fruta, Contenedor, DetallePedido, Pais, Presentacion, Referencias, Exportador, \
+    TipoCaja
 from django.db.models import Sum
 
 
@@ -156,4 +157,82 @@ def crear_archivo_excel(pedidos, totales, ruta_archivo):
     workbook.save(ruta_archivo)
 
     return ruta_archivo
+
+
 # ////////////////////////////////////// Fin Exportaciones De Cartera /////////////////////////////////////////////////
+# Recursos Para Importaciones.
+
+class ClienteResource(resources.ModelResource):
+    class Meta:
+        model = Cliente
+
+
+class ContenedorResource(resources.ModelResource):
+    class Meta:
+        model = Contenedor
+
+
+class DetallePedidoResource(resources.ModelResource):
+    class Meta:
+        model = DetallePedido
+        fields = [field.name for field in DetallePedido._meta.fields]
+
+    def before_import_row(self, row, **kwargs):
+        """
+        Elimina o modifica los valores de los campos no editables antes de importar cada fila.
+        """
+        campos_no_editables = [field.name for field in DetallePedido._meta.fields if not field.editable]
+        for campo in campos_no_editables:
+            if campo in row:
+                # Eliminar el campo o establecer un valor predeterminado
+                del row[campo]
+                # O establecer un valor predeterminado
+                # row[campo] = valor_predeterminado
+
+
+class ExportadorResource(resources.ModelResource):
+    class Meta:
+        model = Exportador
+
+
+class TipoCajaResource(resources.ModelResource):
+    class Meta:
+        model = TipoCaja
+
+
+class FrutaResource(resources.ModelResource):
+    class Meta:
+        model = Fruta
+
+
+class PaisResource(resources.ModelResource):
+    class Meta:
+        model = Pais
+
+
+class PedidoResource(resources.ModelResource):
+    class Meta:
+        model = Pedido
+        fields = [field.name for field in Pedido._meta.fields]
+
+    def before_import_row(self, row, **kwargs):
+        """
+        Elimina o modifica los valores de los campos no editables antes de importar cada fila.
+        """
+        campos_no_editables = [field.name for field in Pedido._meta.fields if not field.editable]
+        for campo in campos_no_editables:
+            if campo in row:
+                # Eliminar el campo o establecer un valor predeterminado
+                del row[campo]
+                # O establecer un valor predeterminado
+                # row[campo] = valor_predeterminado
+
+
+class PresentacionResource(resources.ModelResource):
+    class Meta:
+        model = Presentacion
+
+
+class ReferenciasResource(resources.ModelResource):
+    class Meta:
+        model = Referencias
