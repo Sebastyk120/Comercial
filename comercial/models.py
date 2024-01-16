@@ -1,6 +1,8 @@
 import math
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from importlib import import_module
+
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import Sum
@@ -145,8 +147,19 @@ class Pedido(models.Model):
         if self.fecha_pago is not None:
             self.dias_de_vencimiento = 0
         else:
-            fecha_entrega = self.fecha_entrega + timedelta(days=self.dias_cartera)
+            # Comprobar si self.fecha_entrega es un objeto datetime.datetime
+            if isinstance(self.fecha_entrega, datetime):
+                fecha_entrega = self.fecha_entrega.date()
+            elif isinstance(self.fecha_entrega, date):
+                # No se necesita conversión si ya es un objeto datetime.date
+                fecha_entrega = self.fecha_entrega
+            else:
+                # Manejar otros casos o lanzar un error según sea necesario
+                raise ValueError("Tipo de fecha no soportado")
+
+            fecha_entrega += timedelta(days=self.dias_cartera)
             hoy = datetime.now().date()
+
             self.dias_de_vencimiento = (hoy - fecha_entrega).days
 
         # Estado comision:
@@ -162,7 +175,7 @@ class Pedido(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ['id']
+        ordering = ['-id']
 
     def __str__(self):
         return f'Pedido: {self.id} - Cliente: {self.cliente.nombre}'
@@ -172,7 +185,6 @@ class Presentacion(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="Presentacion", unique=True)
     kilos = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
                                 verbose_name="Kilos")
-    fruta = models.ForeignKey(Fruta, on_delete=models.CASCADE, verbose_name="Fruta")
 
     class Meta:
         ordering = ['nombre']
@@ -214,7 +226,7 @@ class DetallePedido(models.Model):
     fruta = models.ForeignKey(Fruta, on_delete=models.CASCADE, verbose_name="Fruta")
     presentacion = models.ForeignKey(Presentacion, on_delete=models.CASCADE, verbose_name="Presentacion")
     cajas_solicitadas = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Cajas Solicitadas")
-    presentacion_peso = models.DecimalField(verbose_name="Peso Presentacion", editable=False, max_digits=3,
+    presentacion_peso = models.DecimalField(verbose_name="Peso Presentacion", editable=False, max_digits=5,
                                             decimal_places=2, null=True, blank=True)
     kilos = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilos", editable=False)
     cajas_enviadas = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Cajas Enviadas", null=True,
@@ -288,7 +300,7 @@ class DetallePedido(models.Model):
         pedido.save()
 
     class Meta:
-        ordering = ['fruta']
+        ordering = ['pedido']
 
     def __str__(self):
         return f"Detalle Pedido - {self.pedido} - {self.fruta} - {self.presentacion}"
@@ -296,9 +308,10 @@ class DetallePedido(models.Model):
 
 @receiver(pre_save, sender=DetallePedido)
 def almacenar_referencia_antes_de_guardar(sender, instance, **kwargs):
-    if instance.pk:
-        instance._referencia_previa = sender.objects.get(pk=instance.pk).referencia
-    else:
+    try:
+        referencia_previa = sender.objects.get(pk=instance.pk)
+        instance._referencia_previa = referencia_previa.referencia
+    except ObjectDoesNotExist:
         instance._referencia_previa = None
 
 

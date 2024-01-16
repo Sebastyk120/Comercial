@@ -65,7 +65,7 @@ class CarteraPedidoTable(tables.Table):
         model = Pedido
         template_name = "django_tables2/bootstrap5-responsive.html"
         order_by = ('cliente',)
-        fields = ("cliente", "exportadora", "numero_factura", "fecha_entrega_personalizada", "dias_de_vencimiento",
+        fields = ("id", "cliente", "exportadora", "numero_factura", "fecha_entrega_personalizada", "dias_de_vencimiento",
                   "valor_total_factura_usd", "valor_pagado_cliente_usd", "comision_bancaria_usd", "fecha_pago",
                   "estado_factura")
 
@@ -80,7 +80,7 @@ class ComisionPedidoTable(tables.Table):
         model = Pedido
         template_name = "django_tables2/bootstrap5-responsive.html"
         order_by = ('cliente',)
-        fields = (
+        fields = ("id",
             "cliente", "exportadora", "fecha_entrega_personalizada", "valor_total_factura_usd", "diferencia_por_abono",
             "trm_monetizacion", "estado_factura", "valor_total_comision_usd", "valor_comision_pesos",
             "documento_cobro_comision", "fecha_pago_comision", "estado_comision")

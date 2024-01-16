@@ -4,13 +4,12 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
-from django.http import JsonResponse, request, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.db.models import Q
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
-from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.views.generic import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -908,15 +907,25 @@ def export_cartera_juan(request):
 class PedidoListView(SingleTableView):
     model = Pedido
     table_class = PedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'pedido_list_general.html'
     form_class = SearchForm
 
     def get_queryset(self):
         queryset = super().get_queryset()
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -933,13 +942,21 @@ class PedidoEtnicoListView(SingleTableView):
     table_class = PedidoExportadorTable
     template_name = 'pedido_list_etnico.html'
     form_class = SearchForm
-
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Etnico')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -960,9 +977,18 @@ class PedidoFieldexListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Fieldex')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -983,9 +1009,18 @@ class PedidoJuanListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Juan_Matas')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1410,9 +1445,18 @@ class CarteraHeavensListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset()
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1433,9 +1477,18 @@ class CarteraEtnicoListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Etnico')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1456,9 +1509,18 @@ class CarteraFieldexListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Fieldex')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1479,9 +1541,18 @@ class CarteraJuanListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Juan_Matas')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1502,9 +1573,18 @@ class ComisionHeavensListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset()
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1521,13 +1601,21 @@ class ComisionEtnicoListView(SingleTableView):
     table_class = ComisionPedidoTable
     template_name = 'comision_list_etnico.html'
     form_class = SearchForm
-
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Etnico')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1548,9 +1636,18 @@ class ComisionFiedexListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Fieldex')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1571,9 +1668,18 @@ class ComisionJuanListView(SingleTableView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Juan_Matas')
         form = self.form_class(self.request.GET)
+
         if form.is_valid() and form.cleaned_data.get('item_busqueda'):
             item_busqueda = form.cleaned_data.get('item_busqueda')
-            queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
+            # Aquí se maneja la lógica de la búsqueda
+            try:
+                item_busqueda_id = int(item_busqueda)  # Intenta convertir a entero
+                queryset = queryset.filter(Q(cliente__nombre__icontains=item_busqueda) | Q(id=item_busqueda_id))
+            except ValueError:
+                # Si la conversión falla, busca solo por nombre
+                queryset = queryset.filter(cliente__nombre__icontains=item_busqueda)
+
         return queryset
 
     def get_context_data(self, **kwargs):

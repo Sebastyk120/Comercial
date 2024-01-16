@@ -10,7 +10,7 @@ from .choices import tipo_documento
 
 
 class Bodega(models.Model):
-    nombre = models.CharField(max_length=100, unique=True)
+    nombre = models.CharField(max_length=100)
     exportador = models.ForeignKey(Exportador, on_delete=models.CASCADE, verbose_name="Exportador")
 
     class Meta:

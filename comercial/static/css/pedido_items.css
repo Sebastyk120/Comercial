@@ -31,7 +31,9 @@ h1 {
     font-weight: bold;
     white-space: nowrap;  /* Evita el salto de línea en las celdas */
     text-align: center;    /* Alinea el texto a la derecha */
+    overflow-x: auto;
 }
+
 
 .table thead tr {
     background-color: #ff8052;
@@ -123,19 +125,12 @@ label {
     left: 30%;
     top: 90px;
 }
-#add {
-    position: fixed;
-    transition: all 300ms ease 0ms;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    z-index: 99;
-}
 
-#add:hover {
-    background-color: #000000;
-    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-7px);
+[name="filtro"] {
+    position: absolute;
+    left: 3%;
+    top: 85px;
 }
-
 
 @media only screen and (max-width: 600px) {
     #add {
@@ -153,13 +148,6 @@ label {
     }
 
 
-}
-
-#volver {
-    position: fixed;
-    transition: all 300ms ease 0ms;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    z-index: 99;
 }
 
 #volver:hover {
@@ -182,3 +170,15 @@ label {
     text-align: right;    /* Alinea el texto a la derecha */
     padding-right: 10px;  /* Añade algo de relleno a la derecha */
 }
+
+.table th:first-child, .table td:first-child {
+    position: sticky;
+    left: 0;
+    background: #ff8052;  /* Asegúrate de que el fondo no sea transparente */
+    z-index: 9;
+}
+
+
+
+
+
