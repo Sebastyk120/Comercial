@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
 from .models import Pedido, Fruta, Pais, TipoCaja, Cliente, Presentacion, Contenedor, DetallePedido, Referencias, \
-    Exportador
+    Exportador, ClientePresentacion
 from simple_history.admin import SimpleHistoryAdmin
 from import_export.admin import ImportExportModelAdmin
 from .resources import ClienteResource, PedidoResource, FrutaResource, DetallePedidoResource, ContenedorResource, \
@@ -82,3 +82,4 @@ class MyModelAdmin(ImportExportModelAdmin):
 
 admin.site.register(Pedido, PedidoAdmin)
 admin.site.register(DetallePedido, DetallePedidoAdmin)
+admin.site.register(ClientePresentacion)

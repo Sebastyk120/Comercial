@@ -69,12 +69,37 @@ class Cliente(models.Model):
     tax_id2 = models.CharField(max_length=50, verbose_name="Tax ID2", null=True, blank=True)
     encargado_de_reservar = models.CharField(max_length=100, verbose_name="Reservar", null=True, blank=True)
     negociaciones_cartera = models.IntegerField(verbose_name="Dias Cartera")
+    presentaciones = models.ManyToManyField('Presentacion', through='ClientePresentacion', related_name='clientes')
 
     class Meta:
         ordering = ['nombre']
 
     def __str__(self):
         return self.nombre
+
+
+class Presentacion(models.Model):
+    nombre = models.CharField(max_length=255, verbose_name="Presentacion", unique=True)
+    kilos = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
+                                verbose_name="Kilos")
+
+    class Meta:
+        ordering = ['nombre']
+
+    def __str__(self):
+        return self.nombre
+
+
+class ClientePresentacion(models.Model):
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE)
+    presentacion = models.ForeignKey(Presentacion, on_delete=models.CASCADE)
+
+    class Meta:
+        ordering = ['cliente']
+
+    def __str__(self):
+        return f'{self.cliente.nombre} -P: {self.presentacion.nombre}'
+
 
 
 class Pedido(models.Model):
@@ -179,18 +204,6 @@ class Pedido(models.Model):
 
     def __str__(self):
         return f'Pedido: {self.id} - Cliente: {self.cliente.nombre}'
-
-
-class Presentacion(models.Model):
-    nombre = models.CharField(max_length=255, verbose_name="Presentacion", unique=True)
-    kilos = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                verbose_name="Kilos")
-
-    class Meta:
-        ordering = ['nombre']
-
-    def __str__(self):
-        return self.nombre
 
 
 class Contenedor(models.Model):

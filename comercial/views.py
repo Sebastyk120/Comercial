@@ -68,7 +68,7 @@ def exportar_comisiones_excel(request):
             totales_no_cobrables_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
         if pedido.fecha_pago_comision is not None:
             totales_cobrados_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
-        if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono > 0:
+        if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono >= 0:
             totales_por_cobrar_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
         totales_por_comision_usd[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
     # Obtener los datos de tu modelo
@@ -177,7 +177,7 @@ def exportar_comisiones_etnico(request):
             totales_no_cobrables_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
         if pedido.fecha_pago_comision is not None:
             totales_cobrados_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
-        if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono > 0:
+        if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono >= 0:
             totales_por_cobrar_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
         totales_por_comision_usd[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
     # Obtener los datos de tu modelo
@@ -942,6 +942,7 @@ class PedidoEtnicoListView(SingleTableView):
     table_class = PedidoExportadorTable
     template_name = 'pedido_list_etnico.html'
     form_class = SearchForm
+
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Etnico')
         form = self.form_class(self.request.GET)
@@ -1601,6 +1602,7 @@ class ComisionEtnicoListView(SingleTableView):
     table_class = ComisionPedidoTable
     template_name = 'comision_list_etnico.html'
     form_class = SearchForm
+
     def get_queryset(self):
         queryset = super().get_queryset().filter(exportadora__nombre='Etnico')
         form = self.form_class(self.request.GET)

@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import DateInput
 
-from .models import Pedido, Cliente, DetallePedido, Referencias
+from .models import Pedido, Cliente, DetallePedido, Referencias, Presentacion
 
 
 class SearchForm(forms.Form):
@@ -119,6 +119,7 @@ class DetallePedidoForm(forms.ModelForm):
         if pedido_id:
             pedido = Pedido.objects.get(id=pedido_id)
             self.fields['referencia'].queryset = Referencias.objects.filter(exportador=pedido.exportadora)
+            self.fields['presentacion'].queryset = Presentacion.objects.filter(clientes=pedido.cliente)
 
 
 # -------------------------- Formulario Eliminar  Detalle  De Pedido ---------------------------------------------
