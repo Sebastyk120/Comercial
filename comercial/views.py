@@ -1,5 +1,6 @@
 import io
 from collections import defaultdict
+from datetime import datetime
 from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
@@ -10,6 +11,7 @@ from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
 from openpyxl.styles import Font, PatternFill, Alignment
@@ -34,6 +36,13 @@ def es_miembro_del_grupo(nombre_grupo):
 
 
 # ------------------ Exportacion de Comisiones Excel General --------------------------------------------------------
+class ExportarComisionesView(TemplateView):
+    template_name = 'export_comisiones_general.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agrega contexto adicional aquí si es necesario
+        return context
 @login_required
 @user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
 def exportar_comisiones_excel(request):
@@ -62,8 +71,23 @@ def exportar_comisiones_excel(request):
     totales_cobrados_por_exportadora = defaultdict(Decimal)
     totales_por_cobrar_por_exportadora = defaultdict(Decimal)
 
+    fecha_inicial_str = request.POST.get('fecha_inicial')
+    fecha_final_str = request.POST.get('fecha_final')
+
+    # Verificar si las fechas están vacías o nulas
+    if fecha_inicial_str and fecha_final_str:
+        # Convertir las cadenas de fecha en objetos datetime
+        fecha_inicial = datetime.strptime(fecha_inicial_str, '%Y-%m-%d')
+        fecha_final = datetime.strptime(fecha_final_str, '%Y-%m-%d')
+
+        # Filtrar los pedidos por fecha_entrega dentro del rango
+        queryset = Pedido.objects.filter(fecha_entrega__gte=fecha_inicial, fecha_entrega_comision__lte=fecha_final)
+    else:
+        # Si las fechas están vacías, exportar todos los pedidos
+        queryset = Pedido.objects.all()
+
     # Obtener los datos de tu modelo y calcular los totales
-    for pedido in Pedido.objects.all():
+    for pedido in queryset:
         if pedido.diferencia_por_abono < 0:
             totales_no_cobrables_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
         if pedido.fecha_pago_comision is not None:
@@ -71,8 +95,6 @@ def exportar_comisiones_excel(request):
         if pedido.fecha_pago_comision is None and pedido.diferencia_por_abono >= 0:
             totales_por_cobrar_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
         totales_por_comision_usd[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
-    # Obtener los datos de tu modelo
-    queryset = Pedido.objects.all()
 
     # Agregar datos al libro de trabajo
     for row_num, pedido in enumerate(queryset, start=2):
@@ -81,7 +103,7 @@ def exportar_comisiones_excel(request):
             pedido.pk,
             pedido.cliente.nombre,
             pedido.exportadora.nombre,
-            pedido.fecha_pago,
+            pedido.fecha_pago_comision,
             pedido.valor_total_factura_usd,
             pedido.estado_factura,
             pedido.trm_monetizacion,
@@ -98,7 +120,7 @@ def exportar_comisiones_excel(request):
 
     # Agregar los totales al final de la hoja de trabajo
 
-    def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
+    def aplicar_estilo_total(fila):  # Funcion Para Dar Estilo A Los Totales.
         for col in range(1, len(columns) + 1):
             celda = worksheet.cell(row=fila, column=col)
             celda.font = total_font
@@ -207,7 +229,7 @@ def exportar_comisiones_etnico(request):
 
     # Agregar los totales al final de la hoja de trabajo
 
-    def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
+    """def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
         for col in range(1, len(columns) + 1):
             celda = worksheet.cell(row=fila, column=col)
             celda.font = total_font
@@ -238,7 +260,7 @@ def exportar_comisiones_etnico(request):
         worksheet.cell(row=row_num, column=2, value="Total Comisiones Por Pagar")
         worksheet.cell(row=row_num, column=3, value=total_por_cobrar)
         aplicar_estilo_total(row_num)
-        row_num += 1  # Prepararse para la siguiente fila
+        row_num += 1  # Prepararse para la siguiente fila"""
 
     workbook.save(output)
     output.seek(0)
@@ -316,7 +338,7 @@ def exportar_comisiones_fieldex(request):
 
     # Agregar los totales al final de la hoja de trabajo
 
-    def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
+    """def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
         for col in range(1, len(columns) + 1):
             celda = worksheet.cell(row=fila, column=col)
             celda.font = total_font
@@ -347,7 +369,7 @@ def exportar_comisiones_fieldex(request):
         worksheet.cell(row=row_num, column=2, value="Total Comisiones Por Pagar")
         worksheet.cell(row=row_num, column=3, value=total_por_cobrar)
         aplicar_estilo_total(row_num)
-        row_num += 1  # Prepararse para la siguiente fila
+        row_num += 1  # Prepararse para la siguiente fila"""
 
     workbook.save(output)
     output.seek(0)
@@ -425,7 +447,7 @@ def exportar_comisiones_juan(request):
 
     # Agregar los totales al final de la hoja de trabajo
 
-    def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
+    """def aplicar_estilo_total(fila):  # Funcion APara Dar Estilo A Los Totales.
         for col in range(1, len(columns) + 1):
             celda = worksheet.cell(row=fila, column=col)
             celda.font = total_font
@@ -456,7 +478,7 @@ def exportar_comisiones_juan(request):
         worksheet.cell(row=row_num, column=2, value="Total Comisiones Por Pagar")
         worksheet.cell(row=row_num, column=3, value=total_por_cobrar)
         aplicar_estilo_total(row_num)
-        row_num += 1  # Prepararse para la siguiente fila
+        row_num += 1  # Prepararse para la siguiente fila"""
 
     workbook.save(output)
     output.seek(0)
@@ -537,6 +559,19 @@ def exportar_detalles_pedidos_excel(request):
 
 
 # ------------------ Exportacion de Pedidos Excel General --------------------------------------------------------
+
+# Vista Para Exportar Pedidos:
+
+class ExportarPedidosView(TemplateView):
+    template_name = 'export_pedidos_general.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agrega contexto adicional aquí si es necesario
+        return context
+
+
+# Exportacion de Pedidos OpenPyXl >
 @login_required
 @user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
 def exportar_pedidos_excel(request):
@@ -560,8 +595,20 @@ def exportar_pedidos_excel(request):
         cell.font = font
         cell.fill = fill
 
-    # Obtener los datos de tu modelo
-    queryset = Pedido.objects.all()
+    fecha_inicial_str = request.POST.get('fecha_inicial')
+    fecha_final_str = request.POST.get('fecha_final')
+
+    # Verificar si las fechas están vacías o nulas
+    if fecha_inicial_str and fecha_final_str:
+        # Convertir las cadenas de fecha en objetos datetime
+        fecha_inicial = datetime.strptime(fecha_inicial_str, '%Y-%m-%d')
+        fecha_final = datetime.strptime(fecha_final_str, '%Y-%m-%d')
+
+        # Filtrar los pedidos por fecha_entrega dentro del rango
+        queryset = Pedido.objects.filter(fecha_entrega__gte=fecha_inicial, fecha_entrega__lte=fecha_final)
+    else:
+        # Si las fechas están vacías, exportar todos los pedidos
+        queryset = Pedido.objects.all()
 
     # Agregar datos al libro de trabajo
     for row_num, pedido in enumerate(queryset, start=2):
@@ -609,6 +656,18 @@ def exportar_pedidos_excel(request):
 
 
 # ------------------ Exportacion de Pedidos Excel Etnico --------------------------------------------------------
+
+# Vista Para Exportar Pedidos Etnico:
+
+class ExportarPedidosEtnicoView(TemplateView):
+    template_name = 'export_pedidos_etnico.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agrega contexto adicional aquí si es necesario
+        return context
+
+
 @login_required
 @user_passes_test(user_passes_test(es_miembro_del_grupo('Etnico'), login_url='home'))
 def exportar_pedidos_etnico(request):
@@ -632,8 +691,21 @@ def exportar_pedidos_etnico(request):
         cell.font = font
         cell.fill = fill
 
-    # Obtener los datos de tu modelo
-    queryset = Pedido.objects.filter(exportadora__nombre='Etnico')
+    fecha_inicial_str = request.POST.get('fecha_inicial')
+    fecha_final_str = request.POST.get('fecha_final')
+
+    # Verificar si las fechas están vacías o nulas
+    if fecha_inicial_str and fecha_final_str:
+        # Convertir las cadenas de fecha en objetos datetime
+        fecha_inicial = datetime.strptime(fecha_inicial_str, '%Y-%m-%d')
+        fecha_final = datetime.strptime(fecha_final_str, '%Y-%m-%d')
+
+        # Filtrar los pedidos por fecha_entrega dentro del rango
+        queryset = Pedido.objects.filter(exportadora__nombre='Etnico', fecha_entrega__gte=fecha_inicial,
+                                         fecha_entrega__lte=fecha_final)
+    else:
+        # Si las fechas están vacías, exportar todos los pedidos de la exportadora 'Etnico'
+        queryset = Pedido.objects.filter(exportadora__nombre='Etnico')
 
     # Agregar datos al libro de trabajo
     for row_num, pedido in enumerate(queryset, start=2):
@@ -680,6 +752,16 @@ def exportar_pedidos_etnico(request):
 
 
 # ------------------ Exportacion de Pedidos Excel Fieldex --------------------------------------------------------
+
+class ExportarPedidosFieldexView(TemplateView):
+    template_name = 'export_pedidos_fieldex.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agrega contexto adicional aquí si es necesario
+        return context
+
+
 @login_required
 @user_passes_test(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url='home'))
 def exportar_pedidos_fieldex(request):
@@ -703,8 +785,21 @@ def exportar_pedidos_fieldex(request):
         cell.font = font
         cell.fill = fill
 
-    # Obtener los datos de tu modelo
-    queryset = Pedido.objects.filter(exportadora__nombre='Fieldex')
+    fecha_inicial_str = request.POST.get('fecha_inicial')
+    fecha_final_str = request.POST.get('fecha_final')
+
+    # Verificar si las fechas están vacías o nulas
+    if fecha_inicial_str and fecha_final_str:
+        # Convertir las cadenas de fecha en objetos datetime
+        fecha_inicial = datetime.strptime(fecha_inicial_str, '%Y-%m-%d')
+        fecha_final = datetime.strptime(fecha_final_str, '%Y-%m-%d')
+
+        # Filtrar los pedidos por fecha_entrega dentro del rango
+        queryset = Pedido.objects.filter(exportadora__nombre='Fieldex', fecha_entrega__gte=fecha_inicial,
+                                         fecha_entrega__lte=fecha_final)
+    else:
+        # Si las fechas están vacías, exportar todos los pedidos de la exportadora 'Etnico'
+        queryset = Pedido.objects.filter(exportadora__nombre='Fieldex')
 
     # Agregar datos al libro de trabajo
     for row_num, pedido in enumerate(queryset, start=2):
@@ -751,6 +846,15 @@ def exportar_pedidos_fieldex(request):
 
 
 # ------------------ Exportacion de Pedidos Excel Juan Matas ---------------------------------------------------------
+class ExportarPedidosJuanView(TemplateView):
+    template_name = 'export_pedidos_juan.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Agrega contexto adicional aquí si es necesario
+        return context
+
+
 @login_required
 @user_passes_test(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url='home'))
 def exportar_pedidos_juan(request):
@@ -758,7 +862,7 @@ def exportar_pedidos_juan(request):
     output = io.BytesIO()
     workbook = Workbook()
     worksheet = workbook.active
-    worksheet.title = 'Pedidos Totales Juan Matas'
+    worksheet.title = 'Pedidos Totales Juan_Matas'
     font = Font(bold=True)
     fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
 
@@ -774,8 +878,21 @@ def exportar_pedidos_juan(request):
         cell.font = font
         cell.fill = fill
 
-    # Obtener los datos de tu modelo
-    queryset = Pedido.objects.filter(exportadora__nombre='Juan_Matas')
+    fecha_inicial_str = request.POST.get('fecha_inicial')
+    fecha_final_str = request.POST.get('fecha_final')
+
+    # Verificar si las fechas están vacías o nulas
+    if fecha_inicial_str and fecha_final_str:
+        # Convertir las cadenas de fecha en objetos datetime
+        fecha_inicial = datetime.strptime(fecha_inicial_str, '%Y-%m-%d')
+        fecha_final = datetime.strptime(fecha_final_str, '%Y-%m-%d')
+
+        # Filtrar los pedidos por fecha_entrega dentro del rango
+        queryset = Pedido.objects.filter(exportadora__nombre='Juan_Matas', fecha_entrega__gte=fecha_inicial,
+                                         fecha_entrega__lte=fecha_final)
+    else:
+        # Si las fechas están vacías, exportar todos los pedidos de la exportadora 'Etnico'
+        queryset = Pedido.objects.filter(exportadora__nombre='Juan_Matas')
 
     # Agregar datos al libro de trabajo
     for row_num, pedido in enumerate(queryset, start=2):
@@ -816,7 +933,7 @@ def exportar_pedidos_juan(request):
     # Crear una respuesta HTTP con el archivo de Excel
     response = HttpResponse(output.read(),
                             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-    response['Content-Disposition'] = 'attachment; filename="pedidos_juan_matas.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="pedidos_juan.xlsx"'
 
     return response
 
@@ -940,6 +1057,7 @@ class PedidoListView(SingleTableView):
 class PedidoEtnicoListView(SingleTableView):
     model = Pedido
     table_class = PedidoExportadorTable
+    table_pagination = {"per_page": 14}
     template_name = 'pedido_list_etnico.html'
     form_class = SearchForm
 
@@ -972,6 +1090,7 @@ class PedidoEtnicoListView(SingleTableView):
 class PedidoFieldexListView(SingleTableView):
     model = Pedido
     table_class = PedidoExportadorTable
+    table_pagination = {"per_page": 14}
     template_name = 'pedido_list_fieldex.html'
     form_class = SearchForm
 
@@ -1004,6 +1123,7 @@ class PedidoFieldexListView(SingleTableView):
 class PedidoJuanListView(SingleTableView):
     model = Pedido
     table_class = PedidoExportadorTable
+    table_pagination = {"per_page": 14}
     template_name = 'pedido_list_Juan.html'
     form_class = SearchForm
 
@@ -1440,6 +1560,7 @@ class DetallePedidoDeleteiew(UpdateView):
 class CarteraHeavensListView(SingleTableView):
     model = Pedido
     table_class = CarteraPedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'cartera_list_heavens.html'
     form_class = SearchForm
 
@@ -1472,6 +1593,7 @@ class CarteraHeavensListView(SingleTableView):
 class CarteraEtnicoListView(SingleTableView):
     model = Pedido
     table_class = CarteraPedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'cartera_list_etnico.html'
     form_class = SearchForm
 
@@ -1504,6 +1626,7 @@ class CarteraEtnicoListView(SingleTableView):
 class CarteraFieldexListView(SingleTableView):
     model = Pedido
     table_class = CarteraPedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'cartera_list_fieldex.html'
     form_class = SearchForm
 
@@ -1536,6 +1659,7 @@ class CarteraFieldexListView(SingleTableView):
 class CarteraJuanListView(SingleTableView):
     model = Pedido
     table_class = CarteraPedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'cartera_list_juan.html'
     form_class = SearchForm
 
@@ -1568,6 +1692,7 @@ class CarteraJuanListView(SingleTableView):
 class ComisionHeavensListView(SingleTableView):
     model = Pedido
     table_class = ComisionPedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'comision_list_heavens.html'
     form_class = SearchForm
 
@@ -1600,6 +1725,7 @@ class ComisionHeavensListView(SingleTableView):
 class ComisionEtnicoListView(SingleTableView):
     model = Pedido
     table_class = ComisionPedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'comision_list_etnico.html'
     form_class = SearchForm
 
@@ -1632,6 +1758,7 @@ class ComisionEtnicoListView(SingleTableView):
 class ComisionFiedexListView(SingleTableView):
     model = Pedido
     table_class = ComisionPedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'comision_list_fieldex.html'
     form_class = SearchForm
 
@@ -1664,6 +1791,7 @@ class ComisionFiedexListView(SingleTableView):
 class ComisionJuanListView(SingleTableView):
     model = Pedido
     table_class = ComisionPedidoTable
+    table_pagination = {"per_page": 14}
     template_name = 'comision_list_juan.html'
     form_class = SearchForm
 

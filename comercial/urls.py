@@ -35,5 +35,13 @@ urlpatterns = [
     path('exportar_comisiones_fieldex', views.exportar_comisiones_fieldex, name='exportar_comisiones_fieldex'),
     path('exportar_comisiones_juan', views.exportar_comisiones_juan, name='exportar_comisiones_juan'),
     path('exportar_detalles_p_heavens', views.exportar_detalles_pedidos_excel, name='exportar_detalles_p_heavens'),
+    path('exportar_pedidos_view', views.ExportarPedidosView.as_view(), name='exportar_pedidos_view'),
+    path('exportar_pedidos_etnico_view', views.ExportarPedidosEtnicoView.as_view(),
+         name='exportar_pedidos_etnico_view'),
+    path('exportar_pedidos_fieldex_view', views.ExportarPedidosFieldexView.as_view(),
+         name='exportar_pedidos_fieldex_view'),
+    path('exportar_pedidos_juan_view', views.ExportarPedidosJuanView.as_view(), name='exportar_pedidos_juan_view'),
+    path('exportar_comisiones_general_view', views.ExportarComisionesView.as_view(),
+         name='exportar_comisiones_general_view'),
 
 ]
