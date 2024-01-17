@@ -54,7 +54,6 @@ class PedidoExportadorTable(tables.Table):
         model = Pedido
         template_name = "django_tables2/bootstrap5-responsive.html"
 
-
 class CarteraPedidoTable(tables.Table):
     fecha_entrega_personalizada = tables.DateColumn(
         accessor='fecha_entrega',
