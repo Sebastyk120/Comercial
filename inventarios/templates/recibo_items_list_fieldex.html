@@ -27,6 +27,9 @@
     <a type="button" class="btn btn-danger me-md-5 btn-lg" name="volver" id="volver" role="button"
        onclick="history.back();"><i class="bi bi-reply-fill"></i></a>
     </div>
+    <a class="nav-link" href="{% url 'exportar_items_fieldex' %}" name="exportar">
+                            <button class="btn btn-success me-md-5 btn-lg" id="export" id="add"><i class="bi bi-filetype-xlsx"></i></button>
+                        </a>
     <div class="container-fluid">
         {% render_table table %}
     </div>

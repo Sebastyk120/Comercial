@@ -120,6 +120,12 @@ label {
     top: 90px;
 }
 
+[name="exportar2"] {
+    position: absolute;
+    left: 50%;
+    top: 85px;
+}
+
 [name="exportardetalle"] {
     position: absolute;
     left: 30%;
@@ -177,6 +183,8 @@ label {
     background: #ff8052;  /* Asegúrate de que el fondo no sea transparente */
     z-index: 9;
 }
+
+
 
 
 

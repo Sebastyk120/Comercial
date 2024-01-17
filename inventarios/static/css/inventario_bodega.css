@@ -34,7 +34,7 @@ input[name="item_busqueda"] {
     font-family: 'Montserrat', sans-serif;
     transition: 0.3s;
     margin-right: 5px;
-    margin-left: 120px;
+    margin-left: 200px;
 }
 
 input[name="item_busqueda"]:active,
@@ -52,7 +52,7 @@ input[name="item_busqueda"]:focus {
 
 [name="exportar"] {
     position: absolute;
-    left: 42%;
+    left: 85%;
     top: 85px;
 }
 

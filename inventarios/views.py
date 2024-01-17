@@ -2,6 +2,7 @@ import io
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
+from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
@@ -10,7 +11,7 @@ from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
-from openpyxl.styles import Font, PatternFill
+from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.workbook import Workbook
 from comercial.models import Referencias
 from .forms import ItemForm, SearchForm, EditarItemForm, EliminarItemForm
@@ -27,7 +28,184 @@ def es_miembro_del_grupo(nombre_grupo):
     return es_miembro
 
 
-# -------------------------------------- Vistas Para Etnico: ---------------------------------------------------------
+# -------------------------------------- Exportar Items Etnico (Movimientos) Excel: ---------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Etnico'), login_url='home'))
+def exportar_items_etnico(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Inventario de Items'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
+
+    # Configurar el título antes de fusionar
+    title_cell = worksheet['A1']
+    title_cell.value = "Movimientos Inventario Etnico"
+    title_cell.font = Font(bold=True, size=16)
+    title_cell.alignment = Alignment(horizontal="center")
+
+    # Fusionar celdas después de asignar el valor
+    worksheet.merge_cells('A1:J1')
+
+    # Encabezados
+    columns = ['Referencia', 'Cantidad Cajas', 'Tipo Documento', 'Documento', 'Bodega', 'Proveedor',
+               'Fecha Movimiento', 'Propiedad', 'Observaciones', 'Usuario']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=2, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    # Obtener los datos de tu modelo
+    queryset = Item.objects.filter(bodega__exportador__nombre='Etnico')
+
+    # Agregar datos al libro de trabajo
+    for row_num, item in enumerate(queryset, start=2):
+        row = [
+            item.numero_item.nombre,
+            item.cantidad_cajas,
+            item.get_tipo_documento_display(),  # RECORDAR QUE ES PARA LISTAS.
+            item.documento,
+            item.bodega.nombre,  #
+            item.proveedor.nombre,  #
+            item.fecha_movimiento.strftime("%Y-%m-%d"),  # RECORDAR FORMATEO.
+            item.propiedad.nombre,  #
+            item.observaciones,
+            item.user.username,  # Nombre de Usuario.
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="inventario_items_etnico.xlsx"'
+
+    return response
+
+
+# -------------------------------------- Exportar Items Fieldex (Movimientos) Excel: ---------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url='home'))
+def exportar_items_fieldex(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Inventario de Items'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
+
+    # Configurar el título antes de fusionar
+    title_cell = worksheet['A1']
+    title_cell.value = "Movimientos Inventario Fieldex"
+    title_cell.font = Font(bold=True, size=16)
+    title_cell.alignment = Alignment(horizontal="center")
+
+    # Fusionar celdas después de asignar el valor
+    worksheet.merge_cells('A1:J1')
+
+    # Encabezados
+    columns = ['Referencia', 'Cantidad Cajas', 'Tipo Documento', 'Documento', 'Bodega', 'Proveedor',
+               'Fecha Movimiento', 'Propiedad', 'Observaciones', 'Usuario']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=2, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    # Obtener los datos de tu modelo
+    queryset = Item.objects.filter(bodega__exportador__nombre='Fieldex')
+
+    # Agregar datos al libro de trabajo
+    for row_num, item in enumerate(queryset, start=2):
+        row = [
+            item.numero_item.nombre,
+            item.cantidad_cajas,
+            item.get_tipo_documento_display(),  # RECORDAR QUE ES PARA LISTAS.
+            item.documento,
+            item.bodega.nombre,  #
+            item.proveedor.nombre,  #
+            item.fecha_movimiento.strftime("%Y-%m-%d"),  # RECORDAR FORMATEO.
+            item.propiedad.nombre,  #
+            item.observaciones,
+            item.user.username,  # Nombre de Usuario.
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="inventario_items_fieldex.xlsx"'
+
+    return response
+
+
+# -------------------------------------- Exportar Items Juan Matas (Movimientos) Excel: ---------------------------------
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url='home'))
+def exportar_items_juan(request):
+    # Crear un libro de trabajo de Excel
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Inventario de Juan Matas'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid")
+
+    # Configurar el título antes de fusionar
+    title_cell = worksheet['A1']
+    title_cell.value = "Movimientos Inventario Fieldex"
+    title_cell.font = Font(bold=True, size=16)
+    title_cell.alignment = Alignment(horizontal="center")
+
+    # Fusionar celdas después de asignar el valor
+    worksheet.merge_cells('A1:J1')
+
+    # Encabezados
+    columns = ['Referencia', 'Cantidad Cajas', 'Tipo Documento', 'Documento', 'Bodega', 'Proveedor',
+               'Fecha Movimiento', 'Propiedad', 'Observaciones', 'Usuario']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=2, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    # Obtener los datos de tu modelo
+    queryset = Item.objects.filter(bodega__exportador__nombre='Juan_Matas')
+
+    # Agregar datos al libro de trabajo
+    for row_num, item in enumerate(queryset, start=2):
+        row = [
+            item.numero_item.nombre,
+            item.cantidad_cajas,
+            item.get_tipo_documento_display(),  # RECORDAR QUE ES PARA LISTAS.
+            item.documento,
+            item.bodega.nombre,  #
+            item.proveedor.nombre,  #
+            item.fecha_movimiento.strftime("%Y-%m-%d"),  # RECORDAR FORMATEO.
+            item.propiedad.nombre,  #
+            item.observaciones,
+            item.user.username,  # Nombre de Usuario.
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+
+    # Crear una respuesta HTTP con el archivo de Excel
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="inventario_items_juan.xlsx"'
+
+    return response
 
 # ------------------ Exportacion de inventarios  Excel General --------------------------------------------------------
 @login_required

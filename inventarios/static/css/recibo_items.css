@@ -90,9 +90,15 @@ label {
     top: 80px;
 }
 
+[name="exportar"] {
+    position: absolute;
+    left: 60%;
+    top: 80px;
+}
+
 [name="add"] {
     position: absolute;
-    left: 50%;
+    left: 40%;
     top: 80px;
 }
 
@@ -105,6 +111,19 @@ label {
 }
 
 #add:hover {
+    background-color: #000000;
+    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(-7px);
+}
+
+#exportar {
+    position: fixed;
+    transition: all 300ms ease 0ms;
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+    z-index: 99;
+}
+
+#exportar:hover {
     background-color: #000000;
     box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
     transform: translateY(-7px);
@@ -126,8 +145,12 @@ label {
         right: 30px;
     }
 
-
-}
+    #exportar {
+        font-size: 14px;
+        padding: 12px 20px;
+        bottom: 20px;
+        right: 30px;
+    }
 
 #volver {
     position: fixed;

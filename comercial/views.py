@@ -74,19 +74,19 @@ def exportar_comisiones_excel(request):
     fecha_inicial_str = request.POST.get('fecha_inicial')
     fecha_final_str = request.POST.get('fecha_final')
 
-    # Verificar si las fechas están vacías o nulas
+    # Verificar si las fechas están vacías
     if fecha_inicial_str and fecha_final_str:
-        # Convertir las cadenas de fecha en objetos datetime
+        # Convertir las cadenas de fecha en datetime
         fecha_inicial = datetime.strptime(fecha_inicial_str, '%Y-%m-%d')
         fecha_final = datetime.strptime(fecha_final_str, '%Y-%m-%d')
 
         # Filtrar los pedidos por fecha_entrega dentro del rango
-        queryset = Pedido.objects.filter(fecha_entrega__gte=fecha_inicial, fecha_entrega_comision__lte=fecha_final)
+        queryset = Pedido.objects.filter(fecha_entrega__gte=fecha_inicial, fecha_entrega__lte=fecha_final)
     else:
         # Si las fechas están vacías, exportar todos los pedidos
         queryset = Pedido.objects.all()
 
-    # Obtener los datos de tu modelo y calcular los totales
+    # Obtener los datos
     for pedido in queryset:
         if pedido.diferencia_por_abono < 0:
             totales_no_cobrables_por_exportadora[pedido.exportadora.nombre] += Decimal(pedido.valor_total_comision_usd)
@@ -151,7 +151,7 @@ def exportar_comisiones_excel(request):
         worksheet.cell(row=row_num, column=2, value="Total Por Cobrar " + exportadora)
         worksheet.cell(row=row_num, column=3, value=total_por_cobrar)
         aplicar_estilo_total(row_num)
-        row_num += 1  # Prepararse para la siguiente fila
+        row_num += 1
 
     workbook.save(output)
     output.seek(0)

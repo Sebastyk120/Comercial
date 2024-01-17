@@ -15,3 +15,12 @@ campos_bodega = {
                 'Salida: Traslado Remisionado': 'traslado_remisionado',
                 'Salida: Ventas': 'ventas',
             }
+
+ul.pagination {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 3%;
+    top: 920px;
+}

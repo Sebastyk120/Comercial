@@ -18,5 +18,8 @@ urlpatterns = [
     path('exportar_inventario_etnico', views.exportar_inventario_etnico, name='exportar_inventario_etnico'),
     path('exportar_inventario_fieldex', views.exportar_inventario_fieldex, name='exportar_inventario_fieldex'),
     path('exportar_inventario_juan', views.exportar_inventario_juan, name='exportar_inventario_juan'),
+    path('exportar_items_etnico', views.exportar_items_etnico, name='exportar_items_etnico'),
+    path('exportar_items_fieldex', views.exportar_items_fieldex, name='exportar_items_fieldex'),
+    path('exportar_items_juan', views.exportar_items_juan, name='exportar_items_juan'),
 
 ]
