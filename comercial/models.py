@@ -246,7 +246,7 @@ class DetallePedido(models.Model):
                                          blank=True, default=0)
     kilos_enviados = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilos Enviados", editable=False)
     diferencia = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Diferencia", editable=False)
-    tipo_caja = models.ForeignKey(TipoCaja, on_delete=models.CASCADE, verbose_name="Tipo De Caja")
+    tipo_caja = models.ForeignKey(TipoCaja, on_delete=models.CASCADE, verbose_name="Marca")
     referencia = models.ForeignKey(Referencias, on_delete=models.CASCADE, verbose_name="Referencia")
     stickers = models.CharField(verbose_name="Stikers", editable=False, null=True, blank=True)
     lleva_contenedor = models.BooleanField(choices=[(True, "Sí"), (False, "No")], verbose_name="LLeva Contenedor")
