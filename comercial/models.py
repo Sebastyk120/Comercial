@@ -54,7 +54,7 @@ class TipoCaja(models.Model):
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="Nombre Cliente", unique=True)
-    direccion = models.CharField(max_length=255, verbose_name="Direccion")
+    direccion = models.CharField(max_length=255, verbose_name="Dirección")
     ciudad = models.CharField(max_length=100, verbose_name="Ciudad", null=True, blank=True)
     pais = models.ForeignKey(Pais, on_delete=models.CASCADE, verbose_name="Pais")
     tax_id = models.CharField(max_length=50, verbose_name="Tax ID", null=True, blank=True)
@@ -79,7 +79,7 @@ class Cliente(models.Model):
 
 
 class Presentacion(models.Model):
-    nombre = models.CharField(max_length=255, verbose_name="Presentacion", unique=True)
+    nombre = models.CharField(max_length=255, verbose_name="Presentación", unique=True)
     kilos = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
                                 verbose_name="Kilos")
 
@@ -101,7 +101,6 @@ class ClientePresentacion(models.Model):
         return f'{self.cliente.nombre} -P: {self.presentacion.nombre}'
 
 
-
 class Pedido(models.Model):
     cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name="Cliente")
     fecha_solicitud = models.DateField(verbose_name="Fecha Solicitud")
@@ -111,44 +110,44 @@ class Pedido(models.Model):
     awb = models.CharField(max_length=50, verbose_name="AWB", null=True, blank=True)
     destino = models.CharField(max_length=50, verbose_name="Destino", null=True, blank=True, editable=False)
     numero_factura = models.CharField(max_length=50, verbose_name="Factura", null=True, blank=True)
-    total_cajas_enviadas = models.IntegerField(verbose_name="Total Cajas Enviadas", null=True, blank=True,
+    total_cajas_enviadas = models.IntegerField(verbose_name="Cajas Enviadas", null=True, blank=True,
                                                editable=False)
-    nota_credito_no = models.CharField(max_length=50, verbose_name="Nota credito", null=True, blank=True)
-    motivo_nota_credito = models.CharField(max_length=20, choices=motivo_nota, verbose_name="Motivo Nota credito",
+    nota_credito_no = models.CharField(max_length=50, verbose_name="Nota Crédito", null=True, blank=True)
+    motivo_nota_credito = models.CharField(max_length=20, choices=motivo_nota, verbose_name="Motivo Nota Crédito",
                                            null=True, blank=True)
     valor_total_nota_credito_usd = models.DecimalField(max_digits=10, decimal_places=2, editable=False,
-                                                       verbose_name="Total Nota Credito", null=True, blank=True,
+                                                       verbose_name="$ Total Nota Crédito", null=True, blank=True,
                                                        default=0)
     tasa_representativa_usd_diaria = models.DecimalField(max_digits=10, decimal_places=2, editable=False,
-                                                         verbose_name="TRM Representativa", null=True, blank=True,
+                                                         verbose_name="$ TRM Oficial", null=True, blank=True,
                                                          default=0)
     valor_pagado_cliente_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                                   verbose_name="Valor Pagado Cliente",
+                                                   verbose_name="$ Pagado Cliente",
                                                    null=True, blank=True, default=0)
     comision_bancaria_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                                verbose_name="Comision Bancaria USD",
+                                                verbose_name="$ Comisión Bancaria USD",
                                                 null=True, blank=True, default=0)
     fecha_pago = models.DateField(verbose_name="Fecha Pago", null=True, blank=True)
     trm_monetizacion = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                           verbose_name="TRM Monetizacion", null=True,
+                                           verbose_name="$ TRM Monetización", null=True,
                                            blank=True)
     estado_factura = models.CharField(max_length=50, verbose_name="Estado Factura", null=True, blank=True,
                                       editable=False)
     diferencia_por_abono = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Diferencia o Abono",
                                                editable=False, null=True, blank=True)
     dias_de_vencimiento = models.IntegerField(verbose_name="Dias Vencimiento", editable=False, null=True, blank=True)
-    valor_total_factura_usd = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor Total Factura",
+    valor_total_factura_usd = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$ Total Factura",
                                                   null=True, blank=True, editable=False, default=0)
     valor_total_comision_usd = models.DecimalField(max_digits=10, decimal_places=2,
-                                                   verbose_name="Valor Total Comision USD", null=True, blank=True,
+                                                   verbose_name="$ Comisiones USD", null=True, blank=True,
                                                    editable=False)
     valor_comision_pesos = models.DecimalField(max_digits=10, decimal_places=2,
-                                               verbose_name="Valor Total Comision Pesos", null=True, blank=True,
+                                               verbose_name="$ Comisiones Pesos", null=True, blank=True,
                                                editable=False)
-    documento_cobro_comision = models.CharField(max_length=50, verbose_name="Documento Cobro Comision", null=True,
+    documento_cobro_comision = models.CharField(max_length=50, verbose_name="Doc Cobro Comisión", null=True,
                                                 blank=True)
-    fecha_pago_comision = models.DateField(verbose_name="Fecha De Pago Comision", null=True, blank=True)
-    estado_comision = models.CharField(max_length=50, verbose_name="Estado Com", editable=False)
+    fecha_pago_comision = models.DateField(verbose_name="Fecha Pago Comisión", null=True, blank=True)
+    estado_comision = models.CharField(max_length=50, verbose_name="Estado Comisión", editable=False)
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
@@ -237,38 +236,38 @@ class Referencias(models.Model):
 class DetallePedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, verbose_name="Pedido")
     fruta = models.ForeignKey(Fruta, on_delete=models.CASCADE, verbose_name="Fruta")
-    presentacion = models.ForeignKey(Presentacion, on_delete=models.CASCADE, verbose_name="Presentacion")
+    presentacion = models.ForeignKey(Presentacion, on_delete=models.CASCADE, verbose_name="Presentación")
     cajas_solicitadas = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Cajas Solicitadas")
-    presentacion_peso = models.DecimalField(verbose_name="Peso Presentacion", editable=False, max_digits=5,
+    presentacion_peso = models.DecimalField(verbose_name="Peso Caja", editable=False, max_digits=5,
                                             decimal_places=2, null=True, blank=True)
     kilos = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilos", editable=False)
     cajas_enviadas = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Cajas Enviadas", null=True,
                                          blank=True, default=0)
     kilos_enviados = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilos Enviados", editable=False)
     diferencia = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Diferencia", editable=False)
-    tipo_caja = models.ForeignKey(TipoCaja, on_delete=models.CASCADE, verbose_name="Marca")
+    tipo_caja = models.ForeignKey(TipoCaja, on_delete=models.CASCADE, verbose_name="Marca Caja")
     referencia = models.ForeignKey(Referencias, on_delete=models.CASCADE, verbose_name="Referencia")
-    stickers = models.CharField(verbose_name="Stikers", editable=False, null=True, blank=True)
+    stickers = models.CharField(verbose_name="Stickers", editable=False, null=True, blank=True)
     lleva_contenedor = models.BooleanField(choices=[(True, "Sí"), (False, "No")], verbose_name="LLeva Contenedor")
     referencia_contenedor = models.CharField(max_length=255, verbose_name="Referencia Contenedor", blank=True,
                                              null=True, editable=False)
-    cantidad_contenedores = models.IntegerField(verbose_name="Cantidad Contenedores", blank=True, null=True,
+    cantidad_contenedores = models.IntegerField(verbose_name="No. Contenedores", blank=True, null=True,
                                                 editable=False)
     tarifa_comision = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                          verbose_name="Tarifa Comision Por Caja", null=True,
+                                          verbose_name="$ Comisión Por Caja", null=True,
                                           blank=True, default=0)
     valor_x_caja_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                           verbose_name="Valor X Caja USD", null=True,
+                                           verbose_name="$ X Caja USD", null=True,
                                            blank=True, default=0)
-    valor_x_producto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor X Producto", null=True,
+    valor_x_producto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$ X Producto", null=True,
                                            blank=True, editable=False)
     no_cajas_nc = models.IntegerField(verbose_name="No Cajas NC", null=True, blank=True)
-    valor_nota_credito_usd = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Valor Nota Credito USD",
+    valor_nota_credito_usd = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$ Nota Crédito USD",
                                                  null=True, blank=True, editable=False)
-    afecta_comision = models.BooleanField(choices=[(True, "Sí"), (False, "No")], verbose_name="Afecta Comision",
+    afecta_comision = models.BooleanField(choices=[(True, "Sí"), (False, "No")], verbose_name="Afecta Comisión",
                                           null=True, blank=True)
     valor_total_comision_x_producto = models.DecimalField(max_digits=10, decimal_places=2,
-                                                          verbose_name="Valor Comision X Producto", null=True,
+                                                          verbose_name="$ Comisión X Producto", null=True,
                                                           blank=True, editable=False)
     history = HistoricalRecords()
 

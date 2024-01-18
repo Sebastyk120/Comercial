@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
 
 body {
     background-image: url(../img/black.png); !important;
@@ -6,17 +6,24 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    font-family: 'Montserrat', serif;
+    font-family: 'Poppins', serif;
 }
 
 
 h1 {
     justify-content: center;
     text-align: center;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-weight: 800 !important;
-    font-size: 30px !important;
-    color: #ece9e9;
+    font-size: 40px !important;
+    color: #000000;
+}
+
+h2 {
+    justify-content: center;
+    text-align: center;
+    font-family: 'Poppins', sans-serif;
+    color: #000000;
 }
 
 
@@ -24,7 +31,7 @@ h1 {
     border-collapse: collapse;
     margin: 25px 0;
     font-size: 0.8em;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif;
     width: 100%;
     min-width: 400px;/* Hace que la tabla ocupe el 100% del ancho disponible */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
@@ -81,7 +88,7 @@ input[name="item_busqueda"] {
     border: none;
     padding: 8px 12px;
     background-color: #e4e4e4;
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif;
     transition: 0.3s;
     margin-right: 5px;
     margin-left: 100px;
@@ -95,7 +102,7 @@ input[name="item_busqueda"]:focus {
 
 label {
 
-    font-family: 'Montserrat', sans-serif;
+    font-family: 'Poppins', sans-serif;
     font-weight: 600;
     margin: 10px;
 

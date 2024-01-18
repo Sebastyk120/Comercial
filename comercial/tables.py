@@ -39,6 +39,7 @@ class DetallePedidoTable(tables.Table):
     class Meta:
         model = DetallePedido
         template_name = "django_tables2/bootstrap5-responsive.html"
+        exclude = ("pedido", "id")
 
 
 class PedidoExportadorTable(tables.Table):

@@ -16,9 +16,10 @@
     </head>
     <body>
     <br>
-    <h1 class="align-center">Detalles Pedido No: {{ pedido_id }}</h1>
+    <h1 class="align-center">Pedido No: {{ pedido.id }}</h1>
+    <h2 class="align-center">Cliente: {{ pedido.cliente.nombre }}</h2>
     <button type="button" class="btn btn-primary me-md-5 btn-sm" name="add" id="add" data-bs-toggle="modal"
-            data-bs-target="#adddetalleItemModal" href="{% url 'detalle_pedido_crear' pedido_id %}"><i
+            data-bs-target="#adddetalleItemModal" href="{% url 'detalle_pedido_crear' pedido.id %}"><i
             class="bi bi-bag-plus-fill"></i> Agregar
     </button>
     <a type="button" class="btn btn-danger me-md-5 btn-sm" name="volver" id="volver" role="button"

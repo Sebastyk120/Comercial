@@ -43,6 +43,8 @@ class ExportarComisionesView(TemplateView):
         context = super().get_context_data(**kwargs)
         # Agrega contexto adicional aquí si es necesario
         return context
+
+
 @login_required
 @user_passes_test(user_passes_test(es_miembro_del_grupo('Heavens'), login_url='home'))
 def exportar_comisiones_excel(request):
@@ -1164,7 +1166,8 @@ class DetallePedidoListView(SingleTableView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['pedido_id'] = self.kwargs.get('pedido_id')
+        pedido_id = self.kwargs.get('pedido_id')
+        context['pedido'] = get_object_or_404(Pedido, pk=pedido_id)  # Obtiene el objeto Pedido
         return context
 
 
