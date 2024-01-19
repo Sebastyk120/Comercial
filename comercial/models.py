@@ -116,33 +116,33 @@ class Pedido(models.Model):
     motivo_nota_credito = models.CharField(max_length=20, choices=motivo_nota, verbose_name="Motivo Nota Crédito",
                                            null=True, blank=True)
     valor_total_nota_credito_usd = models.DecimalField(max_digits=10, decimal_places=2, editable=False,
-                                                       verbose_name="$ Total Nota Crédito", null=True, blank=True,
+                                                       verbose_name="$Total Nota Crédito", null=True, blank=True,
                                                        default=0)
     tasa_representativa_usd_diaria = models.DecimalField(max_digits=10, decimal_places=2, editable=False,
-                                                         verbose_name="$ TRM Oficial", null=True, blank=True,
+                                                         verbose_name="$TRM Oficial", null=True, blank=True,
                                                          default=0)
     valor_pagado_cliente_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                                   verbose_name="$ Pagado Cliente",
+                                                   verbose_name="$Pagado Cliente",
                                                    null=True, blank=True, default=0)
     comision_bancaria_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                                verbose_name="$ Comisión Bancaria USD",
+                                                verbose_name="$Comisión Bancaria USD",
                                                 null=True, blank=True, default=0)
     fecha_pago = models.DateField(verbose_name="Fecha Pago", null=True, blank=True)
     trm_monetizacion = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                           verbose_name="$ TRM Monetización", null=True,
+                                           verbose_name="$TRM Monetización", null=True,
                                            blank=True)
     estado_factura = models.CharField(max_length=50, verbose_name="Estado Factura", null=True, blank=True,
                                       editable=False)
     diferencia_por_abono = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Diferencia o Abono",
                                                editable=False, null=True, blank=True)
     dias_de_vencimiento = models.IntegerField(verbose_name="Dias Vencimiento", editable=False, null=True, blank=True)
-    valor_total_factura_usd = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$ Total Factura",
+    valor_total_factura_usd = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$Total Factura",
                                                   null=True, blank=True, editable=False, default=0)
     valor_total_comision_usd = models.DecimalField(max_digits=10, decimal_places=2,
-                                                   verbose_name="$ Comisiones USD", null=True, blank=True,
+                                                   verbose_name="$Comisiones USD", null=True, blank=True,
                                                    editable=False)
     valor_comision_pesos = models.DecimalField(max_digits=10, decimal_places=2,
-                                               verbose_name="$ Comisiones Pesos", null=True, blank=True,
+                                               verbose_name="$Comisiones Pesos", null=True, blank=True,
                                                editable=False)
     documento_cobro_comision = models.CharField(max_length=50, verbose_name="Doc Cobro Comisión", null=True,
                                                 blank=True)
@@ -254,20 +254,20 @@ class DetallePedido(models.Model):
     cantidad_contenedores = models.IntegerField(verbose_name="No. Contenedores", blank=True, null=True,
                                                 editable=False)
     tarifa_comision = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                          verbose_name="$ Comisión Por Caja", null=True,
+                                          verbose_name="$Comisión Por Caja", null=True,
                                           blank=True, default=0)
     valor_x_caja_usd = models.DecimalField(validators=[MinValueValidator(0)], max_digits=10, decimal_places=2,
-                                           verbose_name="$ X Caja USD", null=True,
+                                           verbose_name="$Por Caja USD", null=True,
                                            blank=True, default=0)
-    valor_x_producto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$ X Producto", null=True,
+    valor_x_producto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$Por Producto", null=True,
                                            blank=True, editable=False)
     no_cajas_nc = models.IntegerField(verbose_name="No Cajas NC", null=True, blank=True)
-    valor_nota_credito_usd = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$ Nota Crédito USD",
+    valor_nota_credito_usd = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$Nota Crédito USD",
                                                  null=True, blank=True, editable=False)
     afecta_comision = models.BooleanField(choices=[(True, "Sí"), (False, "No")], verbose_name="Afecta Comisión",
                                           null=True, blank=True)
     valor_total_comision_x_producto = models.DecimalField(max_digits=10, decimal_places=2,
-                                                          verbose_name="$ Comisión X Producto", null=True,
+                                                          verbose_name="$Comisión X Producto", null=True,
                                                           blank=True, editable=False)
     history = HistoricalRecords()
 

@@ -6,7 +6,8 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 14px !important;
 }
 
 
@@ -29,7 +30,7 @@ h1 {
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
     background-color: #F2F2F2; /* Puedes ajustar el color de fondo según tus preferencias */
     font-weight: bold;
-    white-space: nowrap;  /* Evita el salto de línea en las celdas */
+    white-space: inherit;  /* Evita el salto de línea en las celdas */
     text-align: center;    /* Alinea el texto a la derecha */
     overflow-x: auto;
 }
@@ -61,6 +62,10 @@ h1 {
     color: #006098;
 }
 
+.table td, .table th {
+    vertical-align: middle;
+}
+
 a:link {
     color: rgb(0, 0, 0);
     text-decoration: none
@@ -85,7 +90,7 @@ input[name="item_busqueda"] {
     font-family: 'Poppins', sans-serif;
     transition: 0.3s;
     margin-right: 5px;
-    margin-left: 100px;
+    margin-left: 20px;
 }
 
 input[name="item_busqueda"]:active,
@@ -116,7 +121,7 @@ label {
 
 [name="exportar"] {
     position: absolute;
-    left: 60%;
+    left: 58%;
     top: 90px;
 }
 
@@ -134,7 +139,7 @@ label {
 
 [name="filtro"] {
     position: absolute;
-    left: 3%;
+    left: 25%;
     top: 85px;
 }
 

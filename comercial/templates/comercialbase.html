@@ -87,9 +87,8 @@
                     <li>
                         <div class="card" style="width: 15.5rem;">
                             <div class="card-body">
-                                <h5 class="card-title"><i class="bi bi-person-square"></i> HEAVENS FRUIT SAS</h5>
-                                <br>
-                                <h6 class="card-subtitle mb-2">{{ request.user.first_name }} {{ request.user.last_name }}</h6>
+                                <h5 class="card-title"><i class="bi bi-person-check"></i> {{ request.user }}</h5>
+                                <h6 class="card-subtitle mb-2">N: {{ request.user.first_name }} {{ request.user.last_name }}</h6>
                                 <p class="card-text" style="font-size:12px;">{{ request.user.email }}</p>
                             </div>
                         </div>
