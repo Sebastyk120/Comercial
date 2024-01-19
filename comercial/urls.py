@@ -43,5 +43,7 @@ urlpatterns = [
     path('exportar_pedidos_juan_view', views.ExportarPedidosJuanView.as_view(), name='exportar_pedidos_juan_view'),
     path('exportar_comisiones_general_view', views.ExportarComisionesView.as_view(),
          name='exportar_comisiones_general_view'),
+    path('exportar_detallepedido_pdf', views.exportar_detalle_pedido_a_pdf, name='exportar_detallepedido_pdf'),
+    path('pedido_resumen/<int:pedido_id>', views.ResumenPedidoListView.as_view(), name='pedido_resumen'),
 
 ]

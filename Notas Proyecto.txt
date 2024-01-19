@@ -24,3 +24,5 @@ ul.pagination {
     left: 3%;
     top: 920px;
 }
+
+Crear la misma cantidad de grupos como Exportadores.

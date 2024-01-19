@@ -1,5 +1,6 @@
 import math
 from datetime import datetime, timedelta, date
+from decimal import Decimal
 from importlib import import_module
 
 from django.core.exceptions import ObjectDoesNotExist
@@ -240,7 +241,7 @@ class DetallePedido(models.Model):
     cajas_solicitadas = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Cajas Solicitadas")
     presentacion_peso = models.DecimalField(verbose_name="Peso Caja", editable=False, max_digits=5,
                                             decimal_places=2, null=True, blank=True)
-    kilos = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilos", editable=False)
+    kilos = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilos Netos", editable=False)
     cajas_enviadas = models.IntegerField(validators=[MinValueValidator(0)], verbose_name="Cajas Enviadas", null=True,
                                          blank=True, default=0)
     kilos_enviados = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Kilos Enviados", editable=False)
@@ -249,7 +250,7 @@ class DetallePedido(models.Model):
     referencia = models.ForeignKey(Referencias, on_delete=models.CASCADE, verbose_name="Referencia")
     stickers = models.CharField(verbose_name="Stickers", editable=False, null=True, blank=True)
     lleva_contenedor = models.BooleanField(choices=[(True, "Sí"), (False, "No")], verbose_name="LLeva Contenedor")
-    referencia_contenedor = models.CharField(max_length=255, verbose_name="Referencia Contenedor", blank=True,
+    referencia_contenedor = models.CharField(max_length=255, verbose_name="Contenedor", blank=True,
                                              null=True, editable=False)
     cantidad_contenedores = models.IntegerField(verbose_name="No. Contenedores", blank=True, null=True,
                                                 editable=False)
@@ -269,6 +270,9 @@ class DetallePedido(models.Model):
     valor_total_comision_x_producto = models.DecimalField(max_digits=10, decimal_places=2,
                                                           verbose_name="$Comisión X Producto", null=True,
                                                           blank=True, editable=False)
+    precio_proforma = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="$Proforma", null=True,
+                                          blank=True)
+    observaciones = models.CharField(verbose_name="Observaciones", max_length=100, blank=True, null=True)
     history = HistoricalRecords()
 
     def save(self, *args, **kwargs):
@@ -310,6 +314,25 @@ class DetallePedido(models.Model):
         pedido.valor_total_nota_credito_usd = sum(detalle.valor_nota_credito_usd or 0 for detalle in detalles)
         pedido.valor_total_comision_usd = sum(detalle.valor_total_comision_x_producto or 0 for detalle in detalles)
         pedido.save()
+
+    def calcular_peso_bruto(self):
+        # Asegurarse de que todos los valores son de tipo Decimal
+        cajas_solicitadas = Decimal(self.cajas_solicitadas)
+        kilos = Decimal(self.kilos)
+        if self.presentacion_peso < Decimal('4'):
+            return (cajas_solicitadas * Decimal('0.3')) + kilos
+        elif self.presentacion_peso < Decimal('8'):
+            return (cajas_solicitadas * Decimal('0.5')) + kilos
+        else:
+            return (cajas_solicitadas * Decimal('0.9')) + kilos
+
+    def calcular_no_piezas(self):
+        # Asegurarse de que todos los valores son de tipo Decimal
+        cajas_solicitadas = Decimal(self.cajas_solicitadas)
+        if self.presentacion_peso < 7.5:
+            return cajas_solicitadas / 160
+        else:
+            cajas_solicitadas / 50
 
     class Meta:
         ordering = ['pedido']

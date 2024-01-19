@@ -20,6 +20,11 @@ class PedidoTable(tables.Table):
         orderable=False
     )
 
+    inf = tables.TemplateColumn(
+        template_name='resumen_pedido_button.html',
+        orderable=False
+    )
+
     class Meta:
         model = Pedido
         template_name = "django_tables2/bootstrap5-responsive.html"
@@ -39,6 +44,11 @@ class DetallePedidoTable(tables.Table):
     class Meta:
         model = DetallePedido
         template_name = "django_tables2/bootstrap5-responsive.html"
+        fields = ["fruta", "presentacion", "cajas_solicitadas", "presentacion_peso", "kilos", "cajas_enviadas",
+                  "kilos_enviados", "diferencia", "tipo_caja", "referencia__nombre", "stickers", "lleva_contenedor",
+                  "referencia_contenedor", "cantidad_contenedores", "tarifa_comision", "valor_x_caja_usd",
+                  "valor_x_caja_usd", "valor_x_producto", "no_cajas_nc", "valor_nota_credito_usd", "afecta_comision",
+                  "valor_total_comision_x_producto", "precio_proforma", "observaciones"]
         exclude = ("pedido", "id")
 
 
@@ -50,6 +60,11 @@ class PedidoExportadorTable(tables.Table):
 
     editar = tables.TemplateColumn(
         template_name='editar_pedido_button.html',
+        orderable=False
+    )
+
+    inf = tables.TemplateColumn(
+        template_name='resumen_pedido_button.html',
         orderable=False
     )
 
@@ -96,3 +111,33 @@ class ComisionPedidoTable(tables.Table):
             return format_html('<span style="color: green;">✔️</span>')
         else:
             return format_html('<span style="color: red;">❌</span>')
+
+
+class ResumenPedidoTable(tables.Table):
+    peso_bruto = tables.Column(empty_values=(), orderable=False, verbose_name="Peso Bruto")
+    cajas_solicitadas = tables.Column(verbose_name="Cajas Pedido")
+    lleva_contenedor = tables.BooleanColumn(orderable=False, verbose_name="Contenedor")
+    valor_x_caja_usd = tables.Column(verbose_name="$Precio Final")
+    tarifa_comision = tables.Column(verbose_name="$Comisión Caja")
+    precio_proforma = tables.Column(verbose_name="$Proforma")
+    precio_und_caja = tables.Column(empty_values=(), orderable=False, verbose_name="$Precio Caja")
+
+    class Meta:
+        model = DetallePedido
+        template_name = "django_tables2/bootstrap5-responsive.html"
+        fields = ["fruta", "presentacion", "cajas_solicitadas", "presentacion_peso", "kilos", "peso_bruto", "tipo_caja",
+                  "referencia__nombre", "stickers", "lleva_contenedor", "observaciones", "precio_und_caja",
+                  "tarifa_comision", "valor_x_caja_usd", "precio_proforma"]
+        exclude = ("pedido", "id")
+
+    def render_peso_bruto(self, record):
+        return record.calcular_peso_bruto()
+
+    def render_lleva_contenedor(self, record):
+        if record.lleva_contenedor is True:
+            return format_html('<span style="color: green;">✔</span>')
+        else:
+            return format_html('<span style="color: red;">❌</span>')
+
+    def render_precio_und_caja(self, record):
+        return record.valor_x_caja_usd - record.tarifa_comision

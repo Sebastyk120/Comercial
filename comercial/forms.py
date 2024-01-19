@@ -109,7 +109,7 @@ class DetallePedidoForm(forms.ModelForm):
         model = DetallePedido
         fields = ['pedido', 'fruta', 'presentacion', 'cajas_solicitadas', 'cajas_enviadas',
                   'tipo_caja', 'referencia', 'lleva_contenedor', 'tarifa_comision',
-                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision']
+                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision', 'observaciones', 'precio_proforma']
 
     def __init__(self, *args, **kwargs):
         pedido_id = kwargs.pop('pedido_id', None)
@@ -130,7 +130,7 @@ class EliminarDetallePedidoForm(forms.ModelForm):
         model = DetallePedido
         fields = ['pedido', 'fruta', 'presentacion', 'cajas_solicitadas', 'cajas_enviadas',
                   'tipo_caja', 'referencia', 'lleva_contenedor', 'tarifa_comision',
-                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision']
+                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision', 'observaciones', 'precio_proforma']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -146,6 +146,8 @@ class EliminarDetallePedidoForm(forms.ModelForm):
         self.fields['valor_x_caja_usd'].disabled = True
         self.fields['no_cajas_nc'].disabled = True
         self.fields['afecta_comision'].disabled = True
+        self.fields['observaciones'].disabled = True
+        self.fields['precio_proforma'].disabled = True
 
 
 # -------------------------- Formulario Editar  Detalle  De Pedido ---------------------------------------------
@@ -155,7 +157,7 @@ class EditarDetallePedidoForm(forms.ModelForm):
         model = DetallePedido
         fields = ['pedido', 'fruta', 'presentacion', 'cajas_solicitadas', 'cajas_enviadas',
                   'tipo_caja', 'referencia', 'lleva_contenedor', 'tarifa_comision',
-                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision']
+                  'valor_x_caja_usd', 'no_cajas_nc', 'afecta_comision', 'observaciones', 'precio_proforma']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

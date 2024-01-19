@@ -1,12 +1,13 @@
 import io
+import math
 from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import user_passes_test, login_required
 from django.db import transaction
-from django.db.models import Q
-from django.http import JsonResponse, HttpResponse
+from django.db.models import Q, Sum
+from django.http import JsonResponse, HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
@@ -16,12 +17,15 @@ from django.views.generic.edit import CreateView, UpdateView
 from django_tables2 import SingleTableView
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.workbook import Workbook
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm, DetallePedidoForm, \
     EliminarDetallePedidoForm, EditarPedidoExportadorForm, EditarDetallePedidoForm
 from .models import Pedido, DetallePedido
 from .resources import obtener_datos_con_totales, crear_archivo_excel, obtener_datos_con_totales_etnico, \
     obtener_datos_con_totales_fieldex, obtener_datos_con_totales_juan
-from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable, CarteraPedidoTable, ComisionPedidoTable
+from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable, CarteraPedidoTable, ComisionPedidoTable, \
+    ResumenPedidoTable
 
 
 # from .resources import CarteraPedidoResource
@@ -33,6 +37,87 @@ def es_miembro_del_grupo(nombre_grupo):
         return user.groups.filter(name=nombre_grupo).exists()
 
     return es_miembro
+
+
+# ----------------- Resumen Exportaciones Table View -------------------------------------
+
+@method_decorator(login_required, name='dispatch')
+class ResumenPedidoListView(SingleTableView):
+    model = DetallePedido
+    table_class = ResumenPedidoTable
+    template_name = 'resumen_pedido.html'
+
+    def get_queryset(self):
+        pedido_id = self.kwargs.get('pedido_id')
+        return DetallePedido.objects.filter(pedido__id=pedido_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pedido_id = self.kwargs.get('pedido_id')
+        context['pedido'] = get_object_or_404(Pedido, pk=pedido_id)
+        queryset = self.get_queryset()
+
+        # Calcular el total de cajas solicitadas
+        total_cajas_solicitadas = self.get_queryset().aggregate(Sum('cajas_solicitadas'))['cajas_solicitadas__sum']
+        total_peso_bruto = sum(obj.calcular_peso_bruto() for obj in queryset)
+        total_piezas = math.ceil(float(sum(obj.calcular_no_piezas() for obj in queryset)))
+        context['total_cajas_solicitadas'] = total_cajas_solicitadas
+        context['total_peso_bruto'] = total_peso_bruto
+        context['total_piezas'] = total_piezas
+
+        return context
+
+
+# ---------------------------------Resumen Exportaciones PDF -----------------------------------------------------
+def exportar_detalle_pedido_a_pdf(request):
+    # Crear una respuesta HTTP para un documento PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="detalle_pedido.pdf"'
+
+    # Crear un objeto canvas de ReportLab para dibujar el PDF
+    p = canvas.Canvas(response, pagesize=letter)
+
+    # Inicializar la posición vertical para dibujar en la página
+    y = 750
+
+    # Encabezados de las columnas
+    encabezados = [
+        "Fruta", "Presentación", "Cajas Solicitadas", "Peso Caja", "Kilos", "Cajas Enviadas",
+        "Marca Caja", "Referencia", "Stickers", "Lleva Contenedor", "Referencia Contenedor",
+        "$Comisión Por Caja", "$Por Caja USD", "$Por Producto"
+    ]
+
+    # Dibujar los encabezados de las columnas
+    for encabezado in encabezados:
+        p.drawString(30, y, encabezado)
+        y -= 20
+
+    # Resetear la posición Y para los datos
+    y = 700
+
+    # Obtener y dibujar los datos
+    for detalle in DetallePedido.objects.filter(pedido_id=166):
+        datos = [
+            str(detalle.fruta), str(detalle.presentacion), detalle.cajas_solicitadas,
+            detalle.presentacion_peso, detalle.kilos, detalle.cajas_enviadas,
+            str(detalle.tipo_caja), str(detalle.referencia), detalle.stickers,
+            "Sí" if detalle.lleva_contenedor else "No", detalle.referencia_contenedor,
+            detalle.tarifa_comision, detalle.valor_x_caja_usd, detalle.valor_x_producto
+        ]
+
+        for dato in datos:
+            p.drawString(30, y, str(dato))
+            y -= 20
+            if y < 50:  # Cambiar de página si es necesario
+                p.showPage()
+                y = 750
+
+    # Finalizar el PDF
+    p.showPage()
+    p.save()
+
+    # Devolver la respuesta
+    return response
 
 
 # ------------------ Exportacion de Comisiones Excel General --------------------------------------------------------
@@ -1152,25 +1237,6 @@ class PedidoJuanListView(SingleTableView):
         return context
 
 
-# ----------------------------------- Mostrar Detalles De Pedido General ------------------------------------------
-@method_decorator(login_required, name='dispatch')
-class DetallePedidoListView(SingleTableView):
-    model = DetallePedido
-    table_class = DetallePedidoTable
-    template_name = 'pedido_detalle_list.html'
-
-    def get_queryset(self):
-        pedido_id = self.kwargs.get('pedido_id')
-        queryset = DetallePedido.objects.filter(pedido__id=pedido_id)
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        pedido_id = self.kwargs.get('pedido_id')
-        context['pedido'] = get_object_or_404(Pedido, pk=pedido_id)  # Obtiene el objeto Pedido
-        return context
-
-
 # -------------------------------  Formulario - Crear Pedido General - Modal (General) ----------------------------
 @method_decorator(login_required, name='dispatch')
 class PedidoCreateView(CreateView):
@@ -1395,6 +1461,35 @@ class PedidoDeleteView(UpdateView):
                 {'success': False, 'html': render_to_string(self.template_name, {'form': form}, request=self.request)})
         else:
             return super().form_invalid(form)
+
+
+# ----------------------------------- Mostrar Detalles De Pedido General ------------------------------------------
+@method_decorator(login_required, name='dispatch')
+class DetallePedidoListView(SingleTableView):
+    model = DetallePedido
+    table_class = DetallePedidoTable
+    template_name = 'pedido_detalle_list.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        pedido_id = self.kwargs.get('pedido_id')
+        pedido = get_object_or_404(Pedido, pk=pedido_id)
+
+        # Comprueba si el usuario pertenece al grupo requerido
+        if not request.user.groups.filter(name=pedido.exportadora.nombre).exists():
+            return HttpResponseForbidden("No tienes permiso para ver estos detalles del pedido")
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_queryset(self):
+        pedido_id = self.kwargs.get('pedido_id')
+        queryset = DetallePedido.objects.filter(pedido__id=pedido_id)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pedido_id = self.kwargs.get('pedido_id')
+        context['pedido'] = get_object_or_404(Pedido, pk=pedido_id)
+        return context
 
 
 # --------------------------- Formulario Crear  Detalle De Pedido ----------------------------------------------------
