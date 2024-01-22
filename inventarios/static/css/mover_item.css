@@ -10,6 +10,7 @@
 [name="bodega"],
 [name="fecha_movimiento"],
 [name="propiedad"],
+[name="tipo_documento"],
 [name="observaciones"] {
     width: 100%;
     border-radius: 4px;
@@ -26,6 +27,7 @@
 [name="bodega"]:disabled,
 [name="fecha_movimiento"]:disabled,
 [name="propiedad"]:disabled,
+[name="tipo_documento"]:disabled,
 [name="observaciones"]:disabled {
     color: white; /* Color cuando estén deshabilitados */
     background-color: black;

@@ -31,12 +31,10 @@
                 </a>
                 <ul class="dropdown-menu">
                     <li>
-                        <div class="card" style="width: 13.5rem;">
+                        <div class="card" style="width: 15.5rem;">
                             <div class="card-body">
-                                <h5 class="card-title"><i class="bi bi-person-square"></i></i></i> HEAVENS FRUIT SAS
-                                </h5>
-                                <br>
-                                <h6 class="card-subtitle mb-2"> {{ request.user.first_name }} {{ request.user.last_name }}</h6>
+                                <h5 class="card-title"><i class="bi bi-person-check"></i> {{ request.user }}</h5>
+                                <h6 class="card-subtitle mb-2">N: {{ request.user.first_name }} {{ request.user.last_name }}</h6>
                                 <p class="card-text" style="font-size:12px;">{{ request.user.email }}</p>
                             </div>
                         </div>
@@ -68,13 +66,13 @@
         <a class="icon-inventarioheavens" href="{% url 'historicos' %}">
             <span>Inventario H</span>
         </a>
-        <a class="icon-inventarioetnico" href="{% url 'inventario_bodega_etnico' %}">
+        <a class="icon-inventarioetnico" href="{% url 'reciboitemslistetnico' %}">
             <span>Inventario Etnico</span>
         </a>
-        <a class="icon-inventariofieldex" href="{% url 'inventario_bodega_fieldex' %}">
+        <a class="icon-inventariofieldex" href="{% url 'reciboitemslistfieldex' %}">
             <span>Inventario Fieldex</span>
         </a>
-        <a class="icon-inventariojuan" href="{% url 'inventario_bodega_juan' %}">
+        <a class="icon-inventariojuan" href="{% url 'reciboitemslistjuan' %}">
             <span>Inventario J M</span>
         </a>
         <a class="icon-tesoreria" href="{% url 'cartera_list_heavens' %}">

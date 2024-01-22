@@ -20,12 +20,12 @@ from openpyxl.workbook import Workbook
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from .forms import SearchForm, PedidoForm, EditarPedidoForm, EliminarPedidoForm, DetallePedidoForm, \
-    EliminarDetallePedidoForm, EditarPedidoExportadorForm, EditarDetallePedidoForm
-from .models import Pedido, DetallePedido
+    EliminarDetallePedidoForm, EditarPedidoExportadorForm, EditarDetallePedidoForm, EditarReferenciaForm
+from .models import Pedido, DetallePedido, Referencias
 from .resources import obtener_datos_con_totales, crear_archivo_excel, obtener_datos_con_totales_etnico, \
     obtener_datos_con_totales_fieldex, obtener_datos_con_totales_juan
 from .tables import PedidoTable, DetallePedidoTable, PedidoExportadorTable, CarteraPedidoTable, ComisionPedidoTable, \
-    ResumenPedidoTable
+    ResumenPedidoTable, ReferenciasTable
 
 
 # from .resources import CarteraPedidoResource
@@ -46,6 +46,15 @@ class ResumenPedidoListView(SingleTableView):
     model = DetallePedido
     table_class = ResumenPedidoTable
     template_name = 'resumen_pedido.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        pedido_id = self.kwargs.get('pedido_id')
+        pedido = get_object_or_404(Pedido, pk=pedido_id)
+        # Comprueba si el usuario pertenece al grupo requerido
+        if not request.user.groups.filter(name=pedido.exportadora.nombre).exists():
+            return HttpResponseForbidden("No tienes permiso para ver estos detalles del pedido")
+
+        return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
         pedido_id = self.kwargs.get('pedido_id')
@@ -1914,3 +1923,264 @@ class ComisionJuanListView(SingleTableView):
         context = super().get_context_data(**kwargs)
         context['item_busqueda'] = self.form_class(self.request.GET)
         return context
+
+
+# --------------------------------- Referencias Table Etnico----------------------------------------------------------
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Etnico'), login_url=reverse_lazy('home')), name='dispatch')
+class ReferenciasEtnicoListView(SingleTableView):
+    model = Referencias
+    table_class = ReferenciasTable
+    template_name = 'referencia_list_etnico.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportador__nombre='Etnico')
+
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            if item_busqueda:
+                queryset = queryset.filter(nombre__icontains=item_busqueda)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class(self.request.GET)
+        return context
+
+
+# --------------------------------- Referencias Table Fieldex----------------------------------------------------------
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url=reverse_lazy('home')), name='dispatch')
+class ReferenciasFieldexListView(SingleTableView):
+    model = Referencias
+    table_class = ReferenciasTable
+    template_name = 'referencia_list_fieldex.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportador__nombre='Fieldex')
+
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            if item_busqueda:
+                queryset = queryset.filter(nombre__icontains=item_busqueda)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class(self.request.GET)
+        return context
+
+
+# --------------------------------- Referencias Table Juan_Matas ------------------------------------------------------
+
+@method_decorator(login_required, name='dispatch')
+@method_decorator(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url=reverse_lazy('home')), name='dispatch')
+class ReferenciasjuanListView(SingleTableView):
+    model = Referencias
+    table_class = ReferenciasTable
+    template_name = 'referencia_list_juan.html'
+    form_class = SearchForm
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(exportador__nombre='Juan_Matas')
+
+        form = self.form_class(self.request.GET)
+        if form.is_valid():
+            item_busqueda = form.cleaned_data.get('item_busqueda')
+            if item_busqueda:
+                queryset = queryset.filter(nombre__icontains=item_busqueda)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form_class(self.request.GET)
+        return context
+
+
+# ---------------------------- Formulario Editar Referencia -----------------------------------------------------------
+@method_decorator(login_required, name='dispatch')
+class ReferenciaUpdateView(UpdateView):
+    model = Referencias
+    form_class = EditarReferenciaForm
+    template_name = 'referencia_editar.html'
+    success_url = reverse_lazy('referencia_editar')
+
+    def get_object(self, queryset=None):
+        referencia_id = self.request.POST.get('referencia_id')
+        referencia = get_object_or_404(Referencias, id=referencia_id)
+        return referencia
+
+    def get(self, request, *args, **kwargs):
+        referencia_id = request.GET.get('referencia_id')
+        self.object = get_object_or_404(Referencias, id=referencia_id)
+        form = self.form_class(instance=self.object)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            form_html = render_to_string(self.template_name, {'form': form}, request=request)
+            return JsonResponse({'form': form_html})
+        else:
+            return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.form_class(request.POST, instance=self.object)
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    @transaction.atomic
+    def form_valid(self, form):
+        self.object = form.save()
+        messages.success(self.request, f'La referencia {self.object.nombre} se ha editado exitosamente.')
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True})
+        else:
+            return super().form_valid(form)
+
+    def form_invalid(self, form):
+        if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse(
+                {'success': False, 'html': render_to_string(self.template_name, {'form': form}, request=self.request)})
+        else:
+            return super().form_invalid(form)
+
+
+# ----------------------- Exportar Referencias por exportador ETNICO -------------------------------------------------
+
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Etnico'), login_url='home'))
+def exportar_referencias_etnico(request):
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Referencias Etnico'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
+
+    # Encabezados
+    columns = ['Referencia', 'Referencia Nueva', 'Contenedor', 'Cantidad Contendedor', 'Precio', 'Exportador']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    queryset = Referencias.objects.filter(exportador__nombre='Etnico')
+
+    # Agregar datos al libro de trabajo
+    for row_num, referencia in enumerate(queryset, start=2):
+        contenedor_nombre = referencia.contenedor.nombre if referencia.contenedor else 'Sin Contenedor'
+        row = [
+            referencia.nombre,
+            referencia.referencia_nueva,
+            contenedor_nombre,
+            referencia.cant_contenedor,
+            referencia.precio,
+            referencia.exportador.nombre,
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="referencias_etnico.xlsx"'
+
+    return response
+
+
+# ----------------------- Exportar Referencias por exportador FIELDEX -------------------------------------------------
+
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Fieldex'), login_url='home'))
+def exportar_referencias_fieldex(request):
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Referencias Fieldex'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
+
+    # Encabezados
+    columns = ['Referencia', 'Referencia Nueva', 'Contenedor', 'Cantidad Contendedor', 'Precio', 'Exportador']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    queryset = Referencias.objects.filter(exportador__nombre='Fieldex')
+
+    # Agregar datos al libro de trabajo
+    for row_num, referencia in enumerate(queryset, start=2):
+        contenedor_nombre = referencia.contenedor.nombre if referencia.contenedor else 'Sin Contenedor'
+        row = [
+            referencia.nombre,
+            referencia.referencia_nueva,
+            contenedor_nombre,
+            referencia.cant_contenedor,
+            referencia.precio,
+            referencia.exportador.nombre,
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="referencias_fieldex.xlsx"'
+
+    return response
+
+
+# ----------------------- Exportar Referencias por exportador JUAN -------------------------------------------------
+
+@login_required
+@user_passes_test(user_passes_test(es_miembro_del_grupo('Juan_Matas'), login_url='home'))
+def exportar_referencias_juan(request):
+    output = io.BytesIO()
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = 'Referencias Juan_Matas'
+    font = Font(bold=True)
+    fill = PatternFill(start_color="fffaac", end_color="fffaac", fill_type="solid")
+
+    # Encabezados
+    columns = ['Referencia', 'Referencia Nueva', 'Contenedor', 'Cantidad Contendedor', 'Precio', 'Exportador']
+    for col_num, column_title in enumerate(columns, start=1):
+        cell = worksheet.cell(row=1, column=col_num, value=column_title)
+        cell.font = font
+        cell.fill = fill
+
+    queryset = Referencias.objects.filter(exportador__nombre='Juan_Matas')
+
+    # Agregar datos al libro de trabajo
+    for row_num, referencia in enumerate(queryset, start=2):
+        contenedor_nombre = referencia.contenedor.nombre if referencia.contenedor else 'Sin Contenedor'
+        row = [
+            referencia.nombre,
+            referencia.referencia_nueva,
+            contenedor_nombre,
+            referencia.cant_contenedor,
+            referencia.precio,
+            referencia.exportador.nombre,
+        ]
+        for col_num, cell_value in enumerate(row, start=1):
+            worksheet.cell(row=row_num, column=col_num, value=cell_value)
+
+    workbook.save(output)
+    output.seek(0)
+    response = HttpResponse(output.read(),
+                            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    response['Content-Disposition'] = 'attachment; filename="referencias_juan.xlsx"'
+
+    return response

@@ -173,3 +173,17 @@ class EditarPedidoExportadorForm(forms.ModelForm):
     class Meta:
         model = Pedido
         fields = ['valor_pagado_cliente_usd', 'comision_bancaria_usd', 'fecha_pago', 'trm_monetizacion']
+
+
+class EditarReferenciaForm(forms.ModelForm):
+    class Meta:
+        model = Referencias
+        fields = ['nombre', 'referencia_nueva', 'precio', 'contenedor', 'cant_contenedor',
+                  'exportador']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['nombre'].disabled = True
+        self.fields['contenedor'].disabled = True
+        self.fields['cant_contenedor'].disabled = True
+        self.fields['exportador'].disabled = True

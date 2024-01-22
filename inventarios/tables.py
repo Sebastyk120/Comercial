@@ -33,7 +33,7 @@ class MovimientoTable(tables.Table):
 
 
 class InventarioTable(tables.Table):
-    numero_item = tables.Column(verbose_name="Referencia")
+    numero_item = tables.Column(verbose_name="Referencia", attrs={"class": "justify-column"})
     stock_actual = tables.Column(empty_values=(), orderable=False, verbose_name="Stock Actual")
 
     class Meta:

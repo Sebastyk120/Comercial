@@ -16,17 +16,17 @@
     <h1 class="align-center">Inventario Por Bodegas Etnico</h1>
     <body>
     <div class="mx-auto">
-
         <form method="get" class="d-flex">
-            <input type="text" name="item_busqueda" placeholder="Buscar..." class="form-control"/>
+            <input type="text" name="item_busqueda" placeholder="Buscar Referencia" class="form-control"/>
             <div class="ml-auto">
                 <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
+                <button class="btn btn-danger me-md-5" id="export"><i class="bi bi-x-circle"></i></button>
             </div>
         </form>
     </div>
     <a class="nav-link" href="{% url 'exportar_inventario_etnico' %}" name="exportar">
-                            <button class="btn btn-success me-md-5 btn-lg" id="export"><i class="bi bi-filetype-xlsx"></i></button>
-                        </a>
+        <button class="btn btn-success me-md-5 btn-lg" id="export"><i class="bi bi-filetype-xlsx"></i></button>
+    </a>
     <div class="container">
         {% render_table table %}
     </div>

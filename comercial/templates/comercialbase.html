@@ -22,19 +22,19 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                        aria-expanded="false">
-                        Pedidos Por Exportador
+                        Pedidos General
                     </a>
                     <div class="submenu" style="background-color: #00bfff">
                         <ul>
-                            <li><a href="{% url 'pedido_list_general' %}">Pedidos General</a></li>
-                            <li><a href="{% url 'pedido_list_etnico' %}">Pedidos Etnico</a></li>
-                            <li><a href="{% url 'pedido_list_fieldex' %}">Pedidos Fieldex</a></li>
-                            <li><a href="{% url 'pedido_list_juan' %}">Pedidos Juan Matas</a></li>
+                            <li><a href="{% url 'pedido_list_general' %}">General</a></li>
+                            <li><a href="{% url 'pedido_list_etnico' %}">Etnico</a></li>
+                            <li><a href="{% url 'pedido_list_fieldex' %}">Fieldex</a></li>
+                            <li><a href="{% url 'pedido_list_juan' %}">Juan Matas</a></li>
                         </ul>
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'comparador_cotizaciones' %}">Cotizaciones Heavens</a>
+                    <a class="nav-link" href="{% url 'comparador_cotizaciones' %}">Validador Cot</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
@@ -67,13 +67,16 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                        aria-expanded="false">
-                        Cotizaciones Por Exportador
+                        Cotizaciones Y Referencias
                     </a>
                     <div class="submenu" style="background-color: #00bfff">
                         <ul>
                             <li><a href="{% url 'cotizacion_etnico' %}">Cotización Etnico</a></li>
                             <li><a href="{% url 'cotizacion_fieldex' %}">Cotización Fieldex</a></li>
                             <li><a href="{% url 'cotizacion_juan' %}">Cotización Juan Matas</a></li>
+                            <li><a href="{% url 'referencia_list_etnico' %}">Referencias Etnico</a></li>
+                            <li><a href="{% url 'referencia_list_fieldex' %}">Referencias Fieldex</a></li>
+                            <li><a href="{% url 'referencia_list_juan' %}">Referencias Juan Matas</a></li>
                         </ul>
                     </div>
                 </li>

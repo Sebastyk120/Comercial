@@ -332,7 +332,7 @@ class DetallePedido(models.Model):
         if self.presentacion_peso < 7.5:
             return cajas_solicitadas / 160
         else:
-            cajas_solicitadas / 50
+            return cajas_solicitadas / 50
 
     class Meta:
         ordering = ['pedido']
