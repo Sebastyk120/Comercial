@@ -1260,9 +1260,9 @@ class PedidoCreateView(CreateView):
 
     @transaction.atomic
     def form_valid(self, form):
-        self.object = form.save()  # Aquí es normal asignar a self.object
+        self.object = form.save()
         messages.success(self.request,
-                         f'El pedido para el cliente {form.cleaned_data['cliente']} se ha creado exitosamente.')
+                         f"El pedido para el cliente {form.cleaned_data['cliente']} se ha creado exitosamente.")
         return JsonResponse({'success': True})
 
     def form_invalid(self, form):
@@ -1327,7 +1327,7 @@ class PedidoUpdateView(UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         messages.success(self.request,
-                         f'El pedido para el cliente {form.cleaned_data['cliente']} se ha editado exitosamente.')
+                         f"El pedido para el cliente {form.cleaned_data['cliente']} se ha editado exitosamente.")
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'success': True})
         else:
@@ -1458,7 +1458,7 @@ class PedidoDeleteView(UpdateView):
         pedido = form.save(commit=False)
         pedido.delete()
         messages.success(self.request,
-                         f'El pedido para el cliente {form.cleaned_data['cliente']} se ha eliminado exitosamente.')
+                         f"El pedido para el cliente {form.cleaned_data['cliente']} se ha eliminado exitosamente.")
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'success': True})
         else:
@@ -1585,7 +1585,7 @@ class DetallePedidoUpdateView(UpdateView):
     def form_valid(self, form):
         self.object = form.save()
         messages.success(self.request,
-                         f'El detalle para el {form.cleaned_data['pedido']} se ha editado exitosamente.')
+                         f"El detalle para el {form.cleaned_data['pedido']} se ha editado exitosamente.")
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'success': True})
         else:
@@ -1647,7 +1647,7 @@ class DetallePedidoDeleteiew(UpdateView):
         detallepedido = form.save(commit=False)
         detallepedido.delete()
         messages.success(self.request,
-                         f'El detalle de {form.cleaned_data['pedido']} se ha eliminado exitosamente.')
+                         f"El detalle de {form.cleaned_data['pedido']} se ha eliminado exitosamente.")
         if self.request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({'success': True})
         else:

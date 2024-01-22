@@ -3,7 +3,7 @@ import django_tables2 as tables
 from django.utils.html import format_html
 from .models import Pedido, DetallePedido, Referencias
 
-locale.setlocale(locale.LC_NUMERIC, 'es_ES')
+locale.setlocale(locale.LC_ALL, 'es_ES.UTF-8')
 
 
 def format_as_currency(value):
