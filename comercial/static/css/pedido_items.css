@@ -167,28 +167,6 @@ label {
     transform: translateY(-7px);
 }
 
-.page-link {
-
-    z-index: 3;
-    color: #000000(--bs-pagination-active-border-color);
-    background-color: #000000;
-    border-color: #000000(--bs-pagination-active-border-color);
-
-}
-
-.django-tables2 .table td {
-    white-space: nowrap;  /* Evita el salto de línea en las celdas */
-    text-align: right;    /* Alinea el texto a la derecha */
-    padding-right: 10px;  /* Añade algo de relleno a la derecha */
-}
-
-.table th:first-child, .table td:first-child {
-    position: sticky;
-    left: 0;
-    background: #ff8052;  /* Asegúrate de que el fondo no sea transparente */
-    z-index: 9;
-}
-
 
 
 
