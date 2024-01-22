@@ -2,7 +2,6 @@ import math
 from datetime import datetime, timedelta, date
 from decimal import Decimal
 from importlib import import_module
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
 from django.db import models
@@ -248,7 +247,7 @@ class DetallePedido(models.Model):
     diferencia = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Diferencia", editable=False)
     tipo_caja = models.ForeignKey(TipoCaja, on_delete=models.CASCADE, verbose_name="Marca Caja")
     referencia = models.ForeignKey(Referencias, on_delete=models.CASCADE, verbose_name="Referencia")
-    stickers = models.CharField(verbose_name="Stickers", editable=False, null=True, blank=True)
+    stickers = models.CharField(max_length=255, verbose_name="Stickers", editable=False, null=True, blank=True)
     lleva_contenedor = models.BooleanField(choices=[(True, "Sí"), (False, "No")], verbose_name="LLeva Contenedor")
     referencia_contenedor = models.CharField(max_length=255, verbose_name="Contenedor", blank=True,
                                              null=True, editable=False)

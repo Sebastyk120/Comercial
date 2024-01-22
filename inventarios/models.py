@@ -39,7 +39,7 @@ class Item(models.Model):
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE, verbose_name="Proveedor O Tercero")
     fecha_movimiento = models.DateField(verbose_name="Fecha Movimiento")
     propiedad = models.ForeignKey(Exportador, on_delete=models.CASCADE, verbose_name="Propiedad")
-    observaciones = models.CharField(verbose_name="Observaciones", blank=True, null=True)
+    observaciones = models.CharField(max_length=255, verbose_name="Observaciones", blank=True, null=True)
     user = models.ForeignKey(User, null=False, on_delete=models.CASCADE, verbose_name="Usuario")
 
     def __str__(self):
@@ -53,7 +53,7 @@ class Movimiento(models.Model):
     bodega = models.ForeignKey(Bodega, verbose_name="Bodega", on_delete=models.CASCADE)
     propiedad = models.CharField(max_length=50, verbose_name="Propiedad")
     fecha_movimiento = models.DateField(verbose_name="Fecha Movimiento")
-    observaciones = models.CharField(verbose_name="Observaciones", blank=True, null=True)
+    observaciones = models.CharField(max_length=255, verbose_name="Observaciones", blank=True, null=True)
     fecha = models.DateTimeField(auto_now_add=True, verbose_name="Fecha Historico")
     user = models.ForeignKey(User, null=False, on_delete=models.CASCADE, verbose_name="Usuario")
 
