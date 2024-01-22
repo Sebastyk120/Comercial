@@ -1,12 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300&display=swap');
 
 body {
-    background-image: url(../img/black.png); !important;
+    background-image: url(../img/fondojornadas.png);
     background-position: center;
     background-size: cover;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    font-family: 'Poppins', serif !important;
+    font-family: 'Poppins', sans-serif !important;
+    font-size: 14px !important;
 }
 
 
@@ -15,32 +16,7 @@ h1 {
     text-align: center;
     font-family: 'Poppins', sans-serif;
     font-weight: 800 !important;
-    font-size: 40px !important;
-    color: #000000;
-}
-
-h2 {
-    justify-content: center;
-    text-align: center;
-    font-family: 'Poppins', sans-serif;
-    color: #48f8bc;
-    font-weight: normal;
-}
-
-h5 {
-    justify-content: center;
-    text-align: center;
-    font-family: 'Poppins', sans-serif;
-    color: #000000;
-    font-weight: 1000 !important;
-}
-
-h6 {
-    justify-content: center;
-    text-align: center;
-    font-family: 'Poppins', sans-serif;
-    color: #000000;
-    font-weight: normal;
+    font-size: 30px !important;
 }
 
 
@@ -52,43 +28,45 @@ h6 {
     width: 100%;
     min-width: 400px;/* Hace que la tabla ocupe el 100% del ancho disponible */
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    background-color: #ece9e9; /* Puedes ajustar el color de fondo según tus preferencias */
+    background-color: #F2F2F2; /* Puedes ajustar el color de fondo según tus preferencias */
     font-weight: bold;
-    white-space: initial;  /* Evita el salto de línea en las celdas */
+    white-space: inherit;  /* Evita el salto de línea en las celdas */
     text-align: center;    /* Alinea el texto a la derecha */
+    overflow-x: auto;
 }
 
+
 .table thead tr {
-    background-color: #f6a168;
-    color: #000000;
+    background-color: #ff8052;
+    color: #ffffff;
     text-align: center;
 
 }
 
 .table thead tr {
-    background-color: #f6a168;
-    color: #000000;
+    background-color: #ff8052;
+    color: #ffffff;
     text-align: center;
 
 }
 
 .table thead tr {
-    background-color: #f6a168;
-    color: #000000;
+    background-color: #ff8052;
+    color: #ffffff;
     text-align: center;
 
 }
 
 .table tbody tr.active-row {
     font-weight: bold;
-    color: #000000;
+    color: #006098;
 }
 
 .table td, .table th {
     vertical-align: middle;
 }
 
-table tr td:nth-child(1), table tr td:nth-child(2), table tr td:nth-child(8){
+table tr td:nth-child(2) {
     text-align: justify;
 }
 
@@ -98,7 +76,7 @@ a:link {
 }
 
 a:hover {
-    color: rgb(0, 0, 0);
+    color: rgb(255, 255, 255);
     text-decoration: none
 }
 
@@ -116,7 +94,7 @@ input[name="item_busqueda"] {
     font-family: 'Poppins', sans-serif;
     transition: 0.3s;
     margin-right: 5px;
-    margin-left: 100px;
+    margin-left: 20px;
 }
 
 input[name="item_busqueda"]:active,
@@ -133,49 +111,58 @@ label {
 
 }
 
-
 [name="volver"] {
     position: absolute;
-    left: 2%;
-    top: 30px;
+    left: 90%;
+    top: 85px;
+}
+
+[name="add"] {
+    position: absolute;
+    left: 50%;
+    top: 85px;
 }
 
 [name="exportar"] {
     position: absolute;
-    left: 95%;
-    top: 30px;
+    left: 58%;
+    top: 90px;
 }
 
-
-#exportar {
+[name="exportar2"] {
     position: absolute;
-    transition: all 300ms ease 0ms;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    z-index: 99;
+    left: 50%;
+    top: 85px;
 }
 
-#exportar:hover {
-    background-color: #000000;
-    box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
-    transform: translateY(-7px);
+[name="exportardetalle"] {
+    position: absolute;
+    left: 30%;
+    top: 90px;
 }
 
+[name="filtro"] {
+    position: absolute;
+    left: 25%;
+    top: 85px;
+}
 
 @media only screen and (max-width: 600px) {
-    #exportar {
+    #add {
         font-size: 14px;
         padding: 12px 20px;
         bottom: 20px;
         right: 30px;
     }
 
-}
+    #volver {
+        font-size: 14px;
+        padding: 12px 20px;
+        bottom: 20px;
+        right: 30px;
+    }
 
-#volver {
-    position: fixed;
-    transition: all 300ms ease 0ms;
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
-    z-index: 99;
+
 }
 
 #volver:hover {
@@ -183,3 +170,32 @@ label {
     box-shadow: 0 15px 20px rgba(0, 0, 0, 0.3);
     transform: translateY(-7px);
 }
+
+.page-link {
+
+    z-index: 3;
+    color: #000000(--bs-pagination-active-border-color);
+    background-color: #000000;
+    border-color: #000000(--bs-pagination-active-border-color);
+
+}
+
+.django-tables2 .table td {
+    white-space: nowrap;  /* Evita el salto de línea en las celdas */
+    text-align: right;    /* Alinea el texto a la derecha */
+    padding-right: 10px;  /* Añade algo de relleno a la derecha */
+}
+
+.table th:first-child, .table td:first-child {
+    position: sticky;
+    left: 0;
+    background: #ff8052;  /* Asegúrate de que el fondo no sea transparente */
+    z-index: 9;
+}
+
+
+
+
+
+
+
